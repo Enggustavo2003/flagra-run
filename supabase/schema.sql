@@ -1,0 +1,126 @@
+-- Flagra Run: banco de dados
+-- Rode este arquivo inteiro uma vez no Supabase > SQL Editor > New query > Run.
+
+create extension if not exists pgcrypto;
+
+-- Fotógrafos (um por usuário logado)
+create table if not exists public.photographers (
+  id uuid primary key references auth.users on delete cascade,
+  name text not null default '',
+  email text not null default '',
+  created_at timestamptz not null default now()
+);
+
+-- Eventos / álbuns
+create table if not exists public.events (
+  id uuid primary key default gen_random_uuid(),
+  photographer_id uuid not null references public.photographers on delete cascade,
+  slug text unique not null,
+  name text not null,
+  city text not null default '',
+  event_date date not null,
+  category text not null default 'Corrida',
+  price_cents int not null check (price_cents > 0),
+  published boolean not null default false,
+  cover_path text,
+  photo_count int not null default 0,
+  created_at timestamptz not null default now()
+);
+create index if not exists events_published_date_idx on public.events (published, event_date desc);
+
+-- Fotos
+create table if not exists public.photos (
+  id uuid primary key default gen_random_uuid(),
+  event_id uuid not null references public.events on delete cascade,
+  original_path text not null,
+  preview_path text not null,
+  width int,
+  height int,
+  bibs int[] not null default '{}',
+  created_at timestamptz not null default now()
+);
+create index if not exists photos_event_idx on public.photos (event_id, created_at);
+create index if not exists photos_bibs_idx on public.photos using gin (bibs);
+
+-- Pedidos (só o servidor lê e escreve)
+create table if not exists public.orders (
+  id uuid primary key default gen_random_uuid(),
+  access_token text not null default encode(gen_random_bytes(24), 'hex'),
+  buyer_name text not null,
+  buyer_email text not null,
+  subtotal_cents int not null,
+  discount_cents int not null default 0,
+  total_cents int not null,
+  status text not null default 'pending' check (status in ('pending','paid','cancelled')),
+  mp_payment_id text,
+  pix_qr_code text,
+  pix_qr_base64 text,
+  paid_at timestamptz,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.order_items (
+  order_id uuid not null references public.orders on delete cascade,
+  photo_id uuid not null references public.photos on delete restrict,
+  event_id uuid not null references public.events on delete restrict,
+  photographer_id uuid not null references public.photographers on delete restrict,
+  price_cents int not null,
+  primary key (order_id, photo_id)
+);
+create index if not exists order_items_photographer_idx on public.order_items (photographer_id);
+
+-- ---------- Segurança (RLS) ----------
+alter table public.photographers enable row level security;
+alter table public.events enable row level security;
+alter table public.photos enable row level security;
+alter table public.orders enable row level security;
+alter table public.order_items enable row level security;
+
+drop policy if exists "fotografo le o proprio perfil" on public.photographers;
+create policy "fotografo le o proprio perfil" on public.photographers
+  for select using (id = auth.uid());
+drop policy if exists "fotografo cria o proprio perfil" on public.photographers;
+create policy "fotografo cria o proprio perfil" on public.photographers
+  for insert with check (id = auth.uid());
+drop policy if exists "fotografo edita o proprio perfil" on public.photographers;
+create policy "fotografo edita o proprio perfil" on public.photographers
+  for update using (id = auth.uid());
+
+drop policy if exists "eventos publicados ou do dono" on public.events;
+create policy "eventos publicados ou do dono" on public.events
+  for select using (published or photographer_id = auth.uid());
+drop policy if exists "dono cria evento" on public.events;
+create policy "dono cria evento" on public.events
+  for insert with check (photographer_id = auth.uid());
+drop policy if exists "dono edita evento" on public.events;
+create policy "dono edita evento" on public.events
+  for update using (photographer_id = auth.uid());
+drop policy if exists "dono apaga evento" on public.events;
+create policy "dono apaga evento" on public.events
+  for delete using (photographer_id = auth.uid());
+
+drop policy if exists "fotos de evento publicado ou do dono" on public.photos;
+create policy "fotos de evento publicado ou do dono" on public.photos
+  for select using (exists (
+    select 1 from public.events e
+    where e.id = event_id and (e.published or e.photographer_id = auth.uid())
+  ));
+drop policy if exists "dono edita fotos" on public.photos;
+create policy "dono edita fotos" on public.photos
+  for update using (exists (
+    select 1 from public.events e where e.id = event_id and e.photographer_id = auth.uid()
+  ));
+-- inserir e apagar fotos é feito só pelo servidor (service role)
+-- orders e order_items não têm política: só o servidor acessa
+
+-- ---------- Armazenamento ----------
+-- previews: público (fotos com marca d'água)
+-- originals: privado (fotos limpas, só saem por link assinado após o pagamento)
+insert into storage.buckets (id, name, public)
+values ('previews', 'previews', true), ('originals', 'originals', false)
+on conflict (id) do nothing;
+
+drop policy if exists "fotografo envia originais na propria pasta" on storage.objects;
+create policy "fotografo envia originais na propria pasta" on storage.objects
+  for insert to authenticated
+  with check (bucket_id = 'originals' and (storage.foldername(name))[1] = auth.uid()::text);

@@ -1,0 +1,60 @@
+import type { Metadata, Viewport } from "next";
+import Link from "next/link";
+import { CartCount, CartProvider } from "@/components/cart";
+import "./globals.css";
+
+export const metadata: Metadata = {
+  title: { default: "Flagra Run | Fotos da sua prova", template: "%s | Flagra Run" },
+  description:
+    "Encontre e compre as fotos da sua corrida, pedal ou competição pelo número de peito. Sem marca d'água, em alta resolução.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
+};
+
+export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover" };
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="pt-BR">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap"
+        />
+      </head>
+      <body>
+        <CartProvider>
+          <header className="top">
+            <div className="wrap">
+              <Link href="/" className="brand" aria-label="Flagra Run, início">
+                <span className="brand-mark">
+                  <i />
+                </span>
+                <b>
+                  flagra<span>run</span>
+                </b>
+              </Link>
+              <nav className="main" aria-label="Principal">
+                <Link href="/">Buscar fotos</Link>
+                <Link href="/painel">Sou fotógrafo</Link>
+                <Link href="/carrinho">
+                  Carrinho
+                  <CartCount />
+                </Link>
+              </nav>
+            </div>
+          </header>
+          <main>{children}</main>
+          <footer className="site">
+            <div className="wrap">
+              <span>© {new Date().getFullYear()} Flagra Run · Fotos de corridas e eventos esportivos</span>
+              <span>Pagamento por Pix via Mercado Pago</span>
+            </div>
+          </footer>
+        </CartProvider>
+      </body>
+    </html>
+  );
+}
