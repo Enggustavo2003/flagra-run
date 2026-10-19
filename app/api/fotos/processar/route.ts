@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import crypto from "node:crypto";
 import { refreshEventStats } from "@/app/painel/actions";
 import { emailAllowed } from "@/lib/auth";
+import { indexAndRecord } from "@/lib/faces-db";
 import { isUuid } from "@/lib/format";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { supabaseServer } from "@/lib/supabase/server";
@@ -62,6 +63,8 @@ export async function POST(req: Request) {
     .single();
   if (iErr) return NextResponse.json({ error: "Falha ao cadastrar a foto" }, { status: 500 });
 
+  // busca por selfie: indexa os rostos na versão limpa (só quando FACE_SEARCH=1)
+  await indexAndRecord(photoId, preview.clean);
   await refreshEventStats(eventId);
   return NextResponse.json({ photo });
 }

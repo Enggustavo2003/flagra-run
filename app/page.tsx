@@ -37,14 +37,25 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
             </button>
           </form>
         </div>
-        <div className="dark-card">
-          <span className="pill">Em breve</span>
-          <h2>Busca por selfie</h2>
-          <p>
-            Não lembra o número? Logo você vai poder mandar uma selfie e o sistema procura o seu rosto em
-            todos os álbuns.
-          </p>
-        </div>
+        {process.env.NEXT_PUBLIC_FACE_SEARCH === "1" ? (
+          <div className="dark-card">
+            <span className="pill">Novo</span>
+            <h2>Não lembra o número?</h2>
+            <p>Mande uma selfie. A gente procura o seu rosto em todos os álbuns publicados.</p>
+            <Link className="btn" href="/selfie" style={{ alignSelf: "flex-start", background: "var(--bib)", color: "var(--bib-ink)" }}>
+              Buscar com selfie
+            </Link>
+          </div>
+        ) : (
+          <div className="dark-card">
+            <span className="pill">Em breve</span>
+            <h2>Busca por selfie</h2>
+            <p>
+              Não lembra o número? Logo você vai poder mandar uma selfie e o sistema procura o seu rosto em
+              todos os álbuns.
+            </p>
+          </div>
+        )}
       </div>
 
       <section className="wrap block">

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { isUuid } from "@/lib/format";
-import { createPixPayment, paymentsFake } from "@/lib/payments";
+import { cleanCpf, createPixPayment, paymentsFake } from "@/lib/payments";
 import { computeTotals, splitTotal } from "@/lib/pricing";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
@@ -18,13 +18,19 @@ export async function POST(req: Request) {
   if (name.length < 2 || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
     return NextResponse.json({ error: "Preencha o nome e um e-mail válido." }, { status: 400 });
   }
+  // O PagBank exige o CPF de quem paga. Não guardamos no nosso banco.
+  const cpf = cleanCpf(typeof body?.cpf === "string" ? body.cpf : "");
+  if (!paymentsFake() && !cpf) {
+    return NextResponse.json({ error: "Digite um CPF válido. Ele é exigido para gerar o Pix." }, { status: 400 });
+  }
   const photoIds = [...new Set(ids as string[])];
 
   const db = supabaseAdmin();
   const { data: photos, error } = await db
     .from("photos")
     .select("id, event_id, events!inner(price_cents, published, photographer_id, name)")
-    .in("id", photoIds);
+    .in("id", photoIds)
+    .eq("hidden", false);
   if (error) return NextResponse.json({ error: "Erro ao carregar as fotos." }, { status: 500 });
 
   const rows = (photos ?? []).filter((p: any) => p.events.published) as any[];
@@ -53,6 +59,12 @@ export async function POST(req: Request) {
     .single();
   if (oErr || !order) return NextResponse.json({ error: "Erro ao criar o pedido." }, { status: 500 });
 
+  const { data: pgs } = await db
+    .from("photographers")
+    .select("id, fee_pct")
+    .in("id", [...new Set(rows.map((p) => p.events.photographer_id as string))]);
+  const feeOf = new Map((pgs ?? []).map((p: any) => [p.id, Number(p.fee_pct)]));
+
   const { error: iErr } = await db.from("order_items").insert(
     rows.map((p, i) => ({
       order_id: order.id,
@@ -60,6 +72,7 @@ export async function POST(req: Request) {
       event_id: p.event_id,
       photographer_id: p.events.photographer_id,
       price_cents: shares[i],
+      fee_pct: feeOf.get(p.events.photographer_id) ?? 12,
     }))
   );
   if (iErr) {
@@ -80,15 +93,16 @@ export async function POST(req: Request) {
       totalCents: t.total,
       email,
       name,
-      description: `Flagra Run · ${rows.length} foto(s)`,
+      cpf: cpf!,
+      photoCount: rows.length,
     });
     await db
       .from("orders")
-      .update({ mp_payment_id: pix.paymentId, pix_qr_code: pix.qrCode, pix_qr_base64: pix.qrBase64 })
+      .update({ gateway_order_id: pix.gatewayOrderId, pix_qr_code: pix.qrCode, pix_qr_base64: pix.qrBase64 })
       .eq("id", order.id);
     return NextResponse.json({ url });
   } catch (err) {
-    console.error("Mercado Pago:", err);
+    console.error("PagBank:", err);
     await db.from("orders").update({ status: "cancelled" }).eq("id", order.id);
     return NextResponse.json(
       { error: "Não foi possível gerar o Pix agora. Tente de novo em alguns minutos." },

@@ -13,7 +13,7 @@ async function getEvent(slug: string) {
   const supabase = await supabaseServer();
   const { data } = await supabase
     .from("events")
-    .select("id,slug,name,city,event_date,category,price_cents,photo_count,cover_path")
+    .select("id,slug,name,city,event_date,category,price_cents,photo_count,cover_path,photographer_id")
     .eq("slug", slug)
     .maybeSingle();
   return { supabase, event: data };
@@ -37,6 +37,7 @@ export default async function EventPage({ params, searchParams }: Props) {
   if (!event) notFound();
 
   const bib = peito && /^\d+$/.test(peito) ? Number(peito) : null;
+  const selfieOn = process.env.NEXT_PUBLIC_FACE_SEARCH === "1";
   let q = supabase
     .from("photos")
     .select("id,preview_path,bibs")
@@ -83,6 +84,15 @@ export default async function EventPage({ params, searchParams }: Props) {
             <input id="peito" name="peito" className="mono" inputMode="numeric" defaultValue={peito ?? ""} />
           </div>
           <button className="btn small">Filtrar</button>
+          {selfieOn && (
+            <Link
+              className="btn small"
+              href={`/selfie?album=${event.id}&nome=${encodeURIComponent(event.name)}`}
+              style={{ background: "var(--bib)", color: "var(--bib-ink)" }}
+            >
+              Buscar com selfie
+            </Link>
+          )}
           {bib && (
             <Link className="btn small ghost" href={`/eventos/${event.slug}`}>
               Limpar

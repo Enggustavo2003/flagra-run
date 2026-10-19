@@ -11,6 +11,7 @@ export default function Carrinho() {
   const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [cpf, setCpf] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const t = computeTotals(cart.items.map((i) => i.priceCents));
@@ -27,7 +28,12 @@ export default function Carrinho() {
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ photoIds: cart.items.map((i) => i.id), name: name.trim(), email: email.trim() }),
+        body: JSON.stringify({
+          photoIds: cart.items.map((i) => i.id),
+          name: name.trim(),
+          email: email.trim(),
+          cpf,
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Não foi possível criar o pedido.");
@@ -106,6 +112,26 @@ export default function Carrinho() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
+        </div>
+        <div className="field">
+          <label className="label" htmlFor="cpf">
+            CPF
+          </label>
+          <input
+            id="cpf"
+            className="mono"
+            inputMode="numeric"
+            autoComplete="off"
+            placeholder="000.000.000-00"
+            value={cpf}
+            onChange={(e) => {
+              const d = e.target.value.replace(/\D/g, "").slice(0, 11);
+              setCpf(d.replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d{1,2})$/, "$1-$2"));
+            }}
+          />
+          <span className="muted" style={{ fontSize: 12 }}>
+            O PagBank exige o CPF para gerar o Pix.
+          </span>
         </div>
         <div className="totals">
           <div>

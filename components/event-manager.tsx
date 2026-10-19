@@ -15,8 +15,37 @@ export function EventManager(p: {
   slug: string;
   userId: string;
   published: boolean;
+  unindexed: number;
   initial: Photo[];
 }) {
+  const [toIndex, setToIndex] = useState(p.unindexed);
+  const [indexing, setIndexing] = useState(false);
+
+  // Indexa os rostos de fotos antigas em lotes, até acabar
+  async function indexFaces() {
+    setIndexing(true);
+    setMsg("");
+    try {
+      for (let guard = 0; guard < 500; guard++) {
+        const r = await fetch("/api/fotos/indexar-rostos", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ eventId: p.eventId }),
+        });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error || "Falhou");
+        setToIndex(d.remaining);
+        if (d.remaining === 0 || (d.done === 0 && d.failed > 0)) {
+          if (d.remaining > 0) setMsg(`${d.remaining} fotos não puderam ser preparadas. Tente de novo mais tarde.`);
+          break;
+        }
+      }
+    } catch (e) {
+      setMsg(e instanceof Error ? e.message : "Não foi possível preparar a busca por selfie.");
+    } finally {
+      setIndexing(false);
+    }
+  }
   const [photos, setPhotos] = useState<Photo[]>(p.initial);
   const [published, setPub] = useState(p.published);
   const [over, setOver] = useState(false);
@@ -109,6 +138,11 @@ export function EventManager(p: {
             {photos.length} fotos · {missingBibs} sem número de peito
           </div>
         </div>
+        {toIndex > 0 && (
+          <button className="btn ghost small" onClick={indexFaces} disabled={indexing}>
+            {indexing ? `Preparando… faltam ${toIndex}` : `Ativar busca por selfie (${toIndex} fotos)`}
+          </button>
+        )}
         {published && (
           <Link className="btn ghost small" href={`/eventos/${p.slug}`} target="_blank">
             Ver página pública
@@ -134,7 +168,7 @@ export function EventManager(p: {
       >
         <h3 style={{ fontSize: 20, marginBottom: 6 }}>Arraste as fotos do evento aqui</h3>
         <p className="muted" style={{ margin: "0 0 14px" }}>
-          JPG ou PNG, até {MAX_MB} MB cada. A marca d&apos;água é aplicada sozinha.
+          JPG ou PNG, até {MAX_MB} MB cada. A marca d&apos;água é aplicada sozinha. Treino de rua sem número de peito? Pode deixar o peito em branco: o corredor acha pela selfie.
         </p>
         <label className="btn ghost" htmlFor="files">
           Escolher arquivos

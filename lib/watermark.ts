@@ -45,5 +45,6 @@ export async function makePreview(input: Buffer) {
     .jpeg({ quality: 78, mozjpeg: true })
     .toBuffer();
 
-  return { buffer, width: W, height: H };
+  // clean: a mesma imagem reduzida, sem marca d'água (usada só para indexar rostos; nunca é publicada)
+  return { buffer, clean: data, width: W, height: H };
 }

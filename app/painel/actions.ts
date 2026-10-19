@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { requirePhotographer } from "@/lib/auth";
 import { CATEGORIES, isUuid, parseBibs, slugify } from "@/lib/format";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { removePhotoFaces } from "@/lib/faces-db";
 
 export type FormState = { error?: string };
 
@@ -17,7 +18,7 @@ export async function createEvent(_: FormState, form: FormData): Promise<FormSta
 
   if (name.length < 3) return { error: "Dê um nome ao evento." };
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return { error: "Escolha a data do evento." };
-  if (!(price >= 1 && price <= 1000)) return { error: "Informe um preço entre R$ 1 e R$ 1.000, como 14,90." };
+  if (!(price >= 1 && price <= 1000)) return { error: "Informe um preço entre R$ 1 e R$ 1.000, como 9,90." };
   if (!(CATEGORIES as readonly string[]).includes(category)) return { error: "Categoria inválida." };
 
   const base = slugify(`${name}-${date.slice(0, 4)}`) || "evento";
@@ -72,6 +73,7 @@ export async function deletePhoto(photoId: string) {
     .eq("photo_id", photoId);
   if (count && count > 0) return { error: "Esta foto já foi vendida e não pode ser apagada." };
 
+  await removePhotoFaces(photoId);
   await admin.from("photos").delete().eq("id", photoId);
   await Promise.all([
     admin.storage.from("originals").remove([photo.original_path]),
@@ -84,8 +86,8 @@ export async function deletePhoto(photoId: string) {
 export async function refreshEventStats(eventId: string) {
   const admin = supabaseAdmin();
   const [{ count }, { data: first }] = await Promise.all([
-    admin.from("photos").select("id", { count: "exact", head: true }).eq("event_id", eventId),
-    admin.from("photos").select("preview_path").eq("event_id", eventId).order("created_at").limit(1),
+    admin.from("photos").select("id", { count: "exact", head: true }).eq("event_id", eventId).eq("hidden", false),
+    admin.from("photos").select("preview_path").eq("event_id", eventId).eq("hidden", false).order("created_at").limit(1),
   ]);
   await admin
     .from("events")

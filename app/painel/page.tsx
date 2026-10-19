@@ -17,13 +17,15 @@ export default async function Painel() {
 
   const { data: sales } = await supabaseAdmin()
     .from("order_items")
-    .select("price_cents, orders!inner(status)")
+    .select("price_cents, fee_pct, orders!inner(status)")
     .eq("photographer_id", user.id)
     .eq("orders.status", "paid");
 
-  const fee = Number(process.env.PLATFORM_FEE_PCT ?? 15);
-  const gross = (sales ?? []).reduce((s, r: any) => s + r.price_cents, 0);
-  const net = Math.round((gross * (100 - fee)) / 100);
+  const { data: me } = await supabase.from("photographers").select("fee_pct, founder").eq("id", user.id).maybeSingle();
+  const fee = Number(me?.fee_pct ?? process.env.PLATFORM_FEE_PCT ?? 12);
+  const net = Math.round(
+    (sales ?? []).reduce((s, r: any) => s + (r.price_cents * (100 - Number(r.fee_pct ?? fee))) / 100, 0)
+  );
   const list = (events ?? []) as EventRow[];
 
   return (
@@ -31,8 +33,16 @@ export default async function Painel() {
       <div>
         <NewEventForm />
         <p className="note" style={{ marginTop: 12 }}>
-          Entrou como {user.email}. A plataforma fica com {fee}% de cada venda.
+          Entrou como {user.email}. A plataforma fica com {fee}% de cada venda, com a busca por selfie incluída.
         </p>
+        {me?.founder && (
+          <div className="panel" style={{ marginTop: 12, borderColor: "var(--bib)" }}>
+            <span className="label">Fotógrafo fundador</span>
+            <p style={{ margin: "6px 0 0" }}>
+              <b>{fee}% de comissão para sempre</b>, com busca por selfie incluída e sem mensalidade.
+            </p>
+          </div>
+        )}
       </div>
       <div style={{ minWidth: 0 }}>
         <div className="stats">

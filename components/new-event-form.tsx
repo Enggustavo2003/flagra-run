@@ -33,7 +33,7 @@ export function NewEventForm() {
           <label className="label" htmlFor="price">
             Preço (R$)
           </label>
-          <input id="price" name="price" className="mono" inputMode="decimal" defaultValue="14,90" required />
+          <input id="price" name="price" className="mono" inputMode="decimal" defaultValue="9,90" required />
         </div>
       </div>
       <div className="field">

@@ -50,7 +50,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <footer className="site">
             <div className="wrap">
               <span>© {new Date().getFullYear()} Flagra Run · Fotos de corridas e eventos esportivos</span>
-              <span>Pagamento por Pix via Mercado Pago</span>
+              <span>
+                <Link href="/privacidade">Privacidade</Link> · <Link href="/remover-rosto">Remover minhas fotos</Link> · Pix via PagBank
+              </span>
             </div>
           </footer>
         </CartProvider>

@@ -1,13 +1,55 @@
-import { MercadoPagoConfig, Payment } from "mercadopago";
 import crypto from "node:crypto";
+import QRCode from "qrcode";
 import { supabaseAdmin } from "./supabase/admin";
+
+/**
+ * Pagamentos via PagBank (API Orders, Pix).
+ * Docs: https://developer.pagbank.com.br/reference/criar-pedido-com-qr-code-pix-v2
+ */
 
 export const paymentsFake = () => process.env.PAYMENTS_FAKE === "1";
 
-function mpPayment() {
-  const accessToken = process.env.MP_ACCESS_TOKEN;
-  if (!accessToken) throw new Error("MP_ACCESS_TOKEN não configurado");
-  return new Payment(new MercadoPagoConfig({ accessToken }));
+function apiBase() {
+  return process.env.PAGBANK_ENV === "production"
+    ? "https://api.pagseguro.com"
+    : "https://sandbox.api.pagseguro.com";
+}
+
+function token() {
+  const t = process.env.PAGBANK_TOKEN;
+  if (!t) throw new Error("PAGBANK_TOKEN não configurado");
+  return t;
+}
+
+async function pagbank(path: string, init?: RequestInit) {
+  const res = await fetch(`${apiBase()}${path}`, {
+    ...init,
+    headers: {
+      Authorization: `Bearer ${token()}`,
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      ...(init?.headers ?? {}),
+    },
+    cache: "no-store",
+  });
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(`PagBank ${res.status}: ${JSON.stringify(body?.error_messages ?? body).slice(0, 500)}`);
+  }
+  return body;
+}
+
+/** Só os dígitos de um CPF válido, ou null. */
+export function cleanCpf(input: string) {
+  const d = input.replace(/\D/g, "");
+  if (d.length !== 11 || /^(\d)\1{10}$/.test(d)) return null;
+  const check = (len: number) => {
+    let sum = 0;
+    for (let i = 0; i < len; i++) sum += Number(d[i]) * (len + 1 - i);
+    const r = (sum * 10) % 11;
+    return r === 10 ? 0 : r;
+  };
+  return check(9) === Number(d[9]) && check(10) === Number(d[10]) ? d : null;
 }
 
 export async function createPixPayment(o: {
@@ -15,29 +57,47 @@ export async function createPixPayment(o: {
   totalCents: number;
   email: string;
   name: string;
-  description: string;
+  cpf: string;
+  photoCount: number;
 }) {
   const site = process.env.NEXT_PUBLIC_SITE_URL ?? "";
-  const res = await mpPayment().create({
-    body: {
-      transaction_amount: o.totalCents / 100,
-      description: o.description,
-      payment_method_id: "pix",
-      external_reference: o.orderId,
-      payer: { email: o.email, first_name: o.name.split(" ")[0] },
-      // o Mercado Pago só aceita URL https pública
-      ...(site.startsWith("https://")
-        ? { notification_url: `${site}/api/webhooks/mercadopago` }
-        : {}),
-    },
-    requestOptions: { idempotencyKey: o.orderId },
+  // Pix vale 24 horas. Formato aceito: 2026-08-06T20:14:00Z
+  const expires = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().replace(/\.\d{3}Z$/, "Z");
+
+  const order = await pagbank("/orders", {
+    method: "POST",
+    headers: { "x-idempotency-key": o.orderId },
+    body: JSON.stringify({
+      reference_id: o.orderId,
+      customer: { name: o.name, email: o.email, tax_id: o.cpf },
+      items: [
+        {
+          reference_id: "fotos",
+          name: `Fotos Flagra Run (${o.photoCount})`,
+          quantity: 1,
+          unit_amount: o.totalCents,
+        },
+      ],
+      charges: [
+        {
+          reference_id: o.orderId,
+          description: `Flagra Run · ${o.photoCount} foto(s)`,
+          amount: { value: o.totalCents, currency: "BRL" },
+          payment_method: { type: "PIX", pix: { expiration_date: expires } },
+        },
+      ],
+      // o PagBank só aceita URL https pública
+      ...(site.startsWith("https://") ? { notification_urls: [`${site}/api/webhooks/pagbank`] } : {}),
+    }),
   });
-  const tx = res.point_of_interaction?.transaction_data;
-  return {
-    paymentId: String(res.id),
-    qrCode: tx?.qr_code ?? null,
-    qrBase64: tx?.qr_code_base64 ?? null,
-  };
+
+  const charge = order.charges?.[0];
+  const text: string | null = charge?.qr_code?.text ?? order.qr_codes?.[0]?.text ?? null;
+  const qrBase64 = text
+    ? (await QRCode.toDataURL(text, { margin: 1, width: 480 })).replace(/^data:image\/png;base64,/, "")
+    : null;
+
+  return { gatewayOrderId: String(order.id), qrCode: text, qrBase64 };
 }
 
 export async function markOrderPaid(orderId: string) {
@@ -48,43 +108,39 @@ export async function markOrderPaid(orderId: string) {
     .eq("status", "pending");
 }
 
-/** Consulta o Mercado Pago e atualiza o pedido. Devolve o status atual. */
+/** Consulta o pedido no PagBank e atualiza o nosso. Devolve o status atual. */
 export async function syncOrder(orderId: string): Promise<string> {
   const db = supabaseAdmin();
   const { data: order } = await db
     .from("orders")
-    .select("status, mp_payment_id")
+    .select("status, gateway_order_id")
     .eq("id", orderId)
     .single();
   if (!order) return "missing";
-  if (order.status !== "pending" || !order.mp_payment_id) return order.status;
+  if (order.status !== "pending" || !order.gateway_order_id) return order.status;
 
-  const p = await mpPayment().get({ id: order.mp_payment_id });
-  if (p.status === "approved" && p.external_reference === orderId) {
+  const remote = await pagbank(`/orders/${encodeURIComponent(order.gateway_order_id)}`);
+  if (remote.reference_id && remote.reference_id !== orderId) return "pending";
+
+  const charges: any[] = remote.charges ?? [];
+  if (charges.some((c) => c.status === "PAID")) {
     await markOrderPaid(orderId);
     return "paid";
   }
-  if (p.status === "cancelled" || p.status === "rejected") {
+  if (charges.length && charges.every((c) => c.status === "CANCELED" || c.status === "DECLINED")) {
     await db.from("orders").update({ status: "cancelled" }).eq("id", orderId).eq("status", "pending");
     return "cancelled";
   }
   return "pending";
 }
 
-/** Confere a assinatura do webhook do Mercado Pago (header x-signature). */
-export function validMpSignature(headers: Headers, dataId: string) {
-  const secret = process.env.MP_WEBHOOK_SECRET;
-  if (!secret) return true; // sem segredo configurado: o syncOrder consulta a API de qualquer forma
-  const sig = headers.get("x-signature") ?? "";
-  const requestId = headers.get("x-request-id") ?? "";
-  const parts = Object.fromEntries(
-    sig.split(",").map((p) => p.trim().split("=").map((s) => s.trim()) as [string, string])
-  );
-  if (!parts.ts || !parts.v1) return false;
-  const manifest = `id:${dataId.toLowerCase()};request-id:${requestId};ts:${parts.ts};`;
-  const expected = crypto.createHmac("sha256", secret).update(manifest).digest("hex");
+/** Confere a assinatura do webhook: sha256("{token}-{corpo}") em hex no header x-authenticity-token. */
+export function validPagbankSignature(headers: Headers, rawBody: string) {
+  const received = headers.get("x-authenticity-token") ?? "";
+  if (!received) return false;
+  const expected = crypto.createHash("sha256").update(`${token()}-${rawBody}`, "utf8").digest("hex");
   try {
-    return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(parts.v1));
+    return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(received.toLowerCase()));
   } catch {
     return false;
   }

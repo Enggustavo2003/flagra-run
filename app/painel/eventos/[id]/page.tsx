@@ -21,9 +21,10 @@ export default async function PainelEvento({ params }: { params: Promise<{ id: s
 
   const { data: photos } = await supabase
     .from("photos")
-    .select("id, preview_path, bibs")
+    .select("id, preview_path, bibs, faces_indexed")
     .eq("event_id", id)
     .order("created_at");
+  const unindexed = (photos ?? []).filter((p) => !p.faces_indexed).length;
 
   return (
     <div className="wrap" style={{ paddingBottom: 60 }}>
@@ -58,6 +59,7 @@ export default async function PainelEvento({ params }: { params: Promise<{ id: s
         slug={event.slug}
         userId={user.id}
         published={event.published}
+        unindexed={process.env.FACE_SEARCH === "1" ? unindexed : 0}
         initial={(photos ?? []).map((p) => ({
           id: p.id,
           previewUrl: previewUrl(p.preview_path),
