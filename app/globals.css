@@ -174,3 +174,21 @@ footer.site .wrap { padding-block: 24px; display: flex; justify-content: space-b
 .checks { display: flex; flex-wrap: wrap; gap: 8px; }
 .checks label { display: inline-flex; gap: 6px; align-items: center; border: 1.5px solid var(--line); border-radius: 999px; padding: 6px 12px; font-size: 14px; cursor: pointer; }
 .checks input { accent-color: var(--accent); }
+
+/* ---------- administração ---------- */
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.kpis.small { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.kpi { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; min-width: 0; text-decoration: none; color: inherit; }
+.kpi b { font-family: var(--display); font-size: 28px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.kpi small { color: var(--muted); font-size: 13px; }
+.kpi.kpi-main { background: var(--ink); color: var(--bg); border-color: var(--ink); grid-column: span 2; text-align: left; }
+.kpi.kpi-main .label, .kpi.kpi-main small { color: var(--bg); opacity: .75; }
+.kpi.kpi-main b { color: var(--bib); font-size: 36px; }
+.kpi.wide { grid-column: span 2; }
+.kpi.warn { border-color: var(--bib); }
+.kpi.link:hover { border-color: var(--accent); }
+.kpis.small .kpi b { font-size: 24px; }
+.admin-two { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 18px; }
+.admin-two > * { min-width: 0; }
+@media (max-width: 760px) { .admin-two { grid-template-columns: 1fr; } .kpis, .kpis.small { grid-template-columns: repeat(2, minmax(0, 1fr)); } .kpi b { font-size: 22px; } .kpi.kpi-main b { font-size: 28px; } }
+.checks label { white-space: nowrap; }

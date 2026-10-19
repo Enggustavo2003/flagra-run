@@ -1,5 +1,6 @@
 import { EventCard, type EventRow } from "@/components/event-card";
 import { NewEventForm } from "@/components/new-event-form";
+import { PasswordForm } from "@/components/password-form";
 import { ProfileForm } from "@/components/profile-form";
 import Link from "next/link";
 import { isAdmin, requirePhotographer } from "@/lib/auth";
@@ -53,6 +54,7 @@ export default async function Painel() {
             modalities: (me?.modalities as string[] | null) ?? [],
           }}
         />
+        <PasswordForm />
       </div>
       <div style={{ minWidth: 0 }}>
         <div className="stats">
@@ -71,6 +73,9 @@ export default async function Painel() {
         </div>
         {isAdmin(user.email) && (
           <p style={{ margin: "0 0 12px" }}>
+            <Link className="btn" href="/admin">
+              Administração →
+            </Link>{" "}
             <Link className="btn ghost" href="/painel/pedidos">
               Pedidos →
             </Link>{" "}

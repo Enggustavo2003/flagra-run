@@ -161,3 +161,13 @@ Política mínima do usuário IAM (troque `SEU_ID_DA_CONTA`):
 - Perfil do fotógrafo no painel: nome, WhatsApp, Instagram e o que fotografa.
 - `/painel/leads` (só `ADMIN_EMAILS`): abas Avisos de fotos (mostra quando já tem foto daquele peito e o botão **Avisar**), Clientes (agrupados por WhatsApp, com total gasto) e Fotógrafos. Filtro "Só quem autorizou", botão "Pediu para sair" e **Exportar planilha** (CSV que abre no Excel).
 - Instalação antiga: rode `supabase/migracao-leads.sql` no SQL Editor **antes** de subir este código.
+
+## Administração (/admin)
+
+- Só para `ADMIN_EMAILS`. Entre em `/entrar` com e-mail e senha (crie a senha no painel, quadro **Senha de acesso**) ou pelo link no e-mail.
+- Períodos 7, 30, 90 dias ou tudo, com comparação com o período anterior.
+- Resultado da plataforma (comissão − taxa do Pix, `PIX_FEE_PCT`, padrão 0,99), vendas, pedidos, ticket médio, fotos por pedido, conversão do Pix e venda que ficou sem pagar.
+- Vendas por dia/mês, horário das vendas e álbuns que mais vendem.
+- Base: clientes, recompra, autorizações, avisos abertos, fotógrafos e fundadores.
+- **Repasses:** saldo de cada fotógrafo (direito dele − já pago). Depois de fazer o Pix, clique em **Registrar repasse** (`photographer_payouts`).
+- Instalação antiga: rode `supabase/migracao-dashboard.sql` antes de subir o código.

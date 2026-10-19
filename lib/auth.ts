@@ -36,3 +36,17 @@ export function isAdmin(email: string | undefined) {
     .filter(Boolean);
   return !!email && list.includes(email.toLowerCase());
 }
+
+/** Exige administrador logado (ADMIN_EMAILS). Quem não é admin recebe "não encontrado". */
+export async function requireAdmin(next = "/admin") {
+  const supabase = await supabaseServer();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect(`/entrar?next=${encodeURIComponent(next)}`);
+  if (!isAdmin(user.email)) {
+    const { notFound } = await import("next/navigation");
+    notFound();
+  }
+  return { supabase, user };
+}
