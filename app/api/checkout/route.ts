@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { isUuid } from "@/lib/format";
 import { cleanCpf, createPixPayment, paymentsFake } from "@/lib/payments";
+import { cleanPhone } from "@/lib/phone";
 import { computeTotals, splitTotal } from "@/lib/pricing";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
@@ -17,6 +18,10 @@ export async function POST(req: Request) {
   }
   if (name.length < 2 || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
     return NextResponse.json({ error: "Preencha o nome e um e-mail válido." }, { status: 400 });
+  }
+  const phone = cleanPhone(typeof body?.phone === "string" ? body.phone : "");
+  if (!phone) {
+    return NextResponse.json({ error: "Digite um WhatsApp válido, com DDD." }, { status: 400 });
   }
   // O PagBank exige o CPF de quem paga. Não guardamos no nosso banco.
   const cpf = cleanCpf(typeof body?.cpf === "string" ? body.cpf : "");
@@ -51,6 +56,8 @@ export async function POST(req: Request) {
     .insert({
       buyer_name: name,
       buyer_email: email,
+      buyer_phone: phone,
+      marketing_optin: body?.optin === true,
       subtotal_cents: t.subtotal,
       discount_cents: t.discount,
       total_cents: t.total,
@@ -94,6 +101,7 @@ export async function POST(req: Request) {
       email,
       name,
       cpf: cpf!,
+      phone,
       photoCount: rows.length,
     });
     await db

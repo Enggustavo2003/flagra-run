@@ -21,11 +21,14 @@ export default function Privacidade() {
 
       <h2 style={S.h2}>Dados que guardamos</h2>
       <p style={S.p}>
-        <b>Na compra:</b> nome e e-mail, para liberar as fotos e registrar o pedido. O CPF é enviado só ao PagBank,
+        <b>Na compra:</b> nome, e-mail e WhatsApp, para liberar as fotos, registrar o pedido e falar com você sobre ele. Só mandamos novidades e promoções pelo WhatsApp se você marcar a caixa de autorização, e você pode pedir para sair a qualquer momento respondendo a mensagem. O CPF é enviado só ao PagBank,
         que exige o dado para gerar o Pix. O Flagra Run não guarda o CPF.
       </p>
       <p style={S.p}>
-        <b>Dos fotógrafos:</b> e-mail de acesso ao painel e as fotos que eles publicam.
+        <b>Aviso de fotos:</b> se você pedir para ser avisado quando suas fotos chegarem, guardamos nome, WhatsApp e número de peito só para isso.
+      </p>
+      <p style={S.p}>
+        <b>Dos fotógrafos:</b> e-mail de acesso ao painel, nome, WhatsApp, Instagram, o que fotografam e as fotos que publicam.
       </p>
 
       <h2 style={S.h2}>Reconhecimento facial</h2>

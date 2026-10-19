@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { EventCard, type EventRow } from "@/components/event-card";
+import { AlertForm } from "@/components/alert-form";
 import { PhotoGrid } from "@/components/photo-grid";
 import { previewUrl } from "@/lib/format";
 import { supabaseServer } from "@/lib/supabase/server";
@@ -51,6 +52,7 @@ export default async function Busca({ searchParams }: { searchParams: Promise<{ 
           <div className="empty" style={{ marginBottom: 60 }}>
             <h3>Nenhuma foto com o peito {q}</h3>
             O fotógrafo pode ainda estar marcando os números. Tente buscar pelo nome do evento.
+            {Number(q) > 0 && Number(q) <= 999999 && <AlertForm bib={Number(q)} />}
           </div>
         )}
       </div>

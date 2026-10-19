@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useCart } from "@/components/cart";
 import { brl } from "@/lib/format";
+import { cleanPhone, formatPhone } from "@/lib/phone";
 import { computeTotals, DISCOUNT_MIN_PHOTOS, DISCOUNT_PCT } from "@/lib/pricing";
 
 export default function Carrinho() {
@@ -11,6 +12,8 @@ export default function Carrinho() {
   const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [optin, setOptin] = useState(false);
   const [cpf, setCpf] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -23,6 +26,10 @@ export default function Carrinho() {
       setError("Preencha o nome e um e-mail válido para receber as fotos.");
       return;
     }
+    if (!cleanPhone(phone)) {
+      setError("Digite seu WhatsApp com DDD. É por ele que a gente te ajuda se algo der errado com o pedido.");
+      return;
+    }
     setBusy(true);
     try {
       const res = await fetch("/api/checkout", {
@@ -32,6 +39,8 @@ export default function Carrinho() {
           photoIds: cart.items.map((i) => i.id),
           name: name.trim(),
           email: email.trim(),
+          phone,
+          optin,
           cpf,
         }),
       });
@@ -114,6 +123,24 @@ export default function Carrinho() {
           />
         </div>
         <div className="field">
+          <label className="label" htmlFor="wa">
+            WhatsApp
+          </label>
+          <input
+            id="wa"
+            className="mono"
+            type="tel"
+            inputMode="tel"
+            autoComplete="tel-national"
+            placeholder="(31) 99999-9999"
+            value={phone}
+            onChange={(e) => setPhone(formatPhone(e.target.value))}
+          />
+          <span className="muted" style={{ fontSize: 12 }}>
+            Para te mandar o link das fotos e dar suporte no pedido.
+          </span>
+        </div>
+        <div className="field">
           <label className="label" htmlFor="cpf">
             CPF
           </label>
@@ -133,6 +160,10 @@ export default function Carrinho() {
             O PagBank exige o CPF para gerar o Pix.
           </span>
         </div>
+        <label className="optin">
+          <input type="checkbox" checked={optin} onChange={(e) => setOptin(e.target.checked)} />
+          <span>Quero receber no WhatsApp aviso de álbuns novos e promoções. Dá para sair quando quiser.</span>
+        </label>
         <div className="totals">
           <div>
             <span>Subtotal</span>

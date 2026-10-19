@@ -5,6 +5,7 @@ import { requirePhotographer } from "@/lib/auth";
 import { CATEGORIES, isUuid, parseBibs, slugify } from "@/lib/format";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { removePhotoFaces } from "@/lib/faces-db";
+import { cleanPhone } from "@/lib/phone";
 
 export type FormState = { error?: string };
 
@@ -93,4 +94,33 @@ export async function refreshEventStats(eventId: string) {
     .from("events")
     .update({ photo_count: count ?? 0, cover_path: first?.[0]?.preview_path ?? null })
     .eq("id", eventId);
+}
+
+export async function updateProfile(_: FormState & { ok?: boolean }, form: FormData): Promise<FormState & { ok?: boolean }> {
+  const { supabase, user } = await requirePhotographer();
+  const name = String(form.get("name") ?? "").trim().slice(0, 80);
+  const rawPhone = String(form.get("whatsapp") ?? "");
+  const whatsapp = cleanPhone(rawPhone);
+  const instagram = String(form.get("instagram") ?? "")
+    .trim()
+    .replace(/^https?:\/\/(www\.)?instagram\.com\//i, "")
+    .replace(/^@/, "")
+    .replace(/\/.*$/, "")
+    .slice(0, 40);
+  const modalities = form
+    .getAll("modalities")
+    .map(String)
+    .filter((m) => (CATEGORIES as readonly string[]).includes(m));
+
+  if (name.length < 2) return { error: "Coloque seu nome ou o nome do seu estúdio." };
+  if (!whatsapp) return { error: "Digite seu WhatsApp com DDD." };
+  if (instagram && !/^[a-zA-Z0-9._]{1,30}$/.test(instagram)) return { error: "Confira o @ do Instagram." };
+
+  const { error } = await supabase
+    .from("photographers")
+    .update({ name, whatsapp, instagram: instagram || null, modalities })
+    .eq("id", user.id);
+  if (error) return { error: "Não deu para salvar agora. Tente de novo." };
+  revalidatePath("/painel");
+  return { ok: true };
 }

@@ -1,6 +1,8 @@
 import { EventCard, type EventRow } from "@/components/event-card";
 import { NewEventForm } from "@/components/new-event-form";
-import { requirePhotographer } from "@/lib/auth";
+import { ProfileForm } from "@/components/profile-form";
+import Link from "next/link";
+import { isAdmin, requirePhotographer } from "@/lib/auth";
 import { brl } from "@/lib/format";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
@@ -21,7 +23,7 @@ export default async function Painel() {
     .eq("photographer_id", user.id)
     .eq("orders.status", "paid");
 
-  const { data: me } = await supabase.from("photographers").select("fee_pct, founder").eq("id", user.id).maybeSingle();
+  const { data: me } = await supabase.from("photographers").select("fee_pct, founder, name, whatsapp, instagram, modalities").eq("id", user.id).maybeSingle();
   const fee = Number(me?.fee_pct ?? process.env.PLATFORM_FEE_PCT ?? 12);
   const net = Math.round(
     (sales ?? []).reduce((s, r: any) => s + (r.price_cents * (100 - Number(r.fee_pct ?? fee))) / 100, 0)
@@ -43,6 +45,14 @@ export default async function Painel() {
             </p>
           </div>
         )}
+        <ProfileForm
+          profile={{
+            name: me?.name ?? "",
+            whatsapp: me?.whatsapp ?? null,
+            instagram: me?.instagram ?? null,
+            modalities: (me?.modalities as string[] | null) ?? [],
+          }}
+        />
       </div>
       <div style={{ minWidth: 0 }}>
         <div className="stats">
@@ -59,6 +69,16 @@ export default async function Painel() {
             <b className="mono">{brl(net)}</b>
           </div>
         </div>
+        {isAdmin(user.email) && (
+          <p style={{ margin: "0 0 12px" }}>
+            <Link className="btn ghost" href="/painel/pedidos">
+              Pedidos →
+            </Link>{" "}
+            <Link className="btn ghost" href="/painel/leads">
+              Contatos e leads →
+            </Link>
+          </p>
+        )}
         <h2 style={{ fontSize: 22, margin: "8px 0 12px" }}>Seus álbuns</h2>
         {list.length ? (
           <div className="events">
