@@ -1,4 +1,4 @@
-export const CATEGORIES = ["Corrida", "Treino de rua", "Ciclismo", "Funcional", "Triathlon", "Trail", "Outros"] as const;
+export const CATEGORIES = ["Corrida", "Treino de rua", "Ciclismo", "Hyrox", "Crossfit", "Fitness", "Outros"] as const;
 
 export function brl(cents: number) {
   return (cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });

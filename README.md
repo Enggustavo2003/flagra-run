@@ -49,6 +49,7 @@ Faça na ordem. Tempo total: uns 40 minutos.
 | `PAGBANK_TOKEN` | do passo 2 |
 | `PAGBANK_ENV` | `sandbox` para testar, `production` para valer |
 | `PHOTOGRAPHER_EMAILS` | seu e-mail (só quem estiver aqui entra no painel) |
+| `ADMIN_EMAILS` | seu e-mail (vê os pedidos e o WhatsApp dos clientes) |
 | `PLATFORM_FEE_PCT` | `12` (só reserva; a comissão real fica no banco) |
 | `PAYMENTS_FAKE` | `0` |
 
@@ -149,3 +150,14 @@ Política mínima do usuário IAM (troque `SEU_ID_DA_CONTA`):
 - Links para as duas páginas no rodapé e no consentimento da selfie.
 
 **LGPD:** rosto é dado biométrico, ou seja, dado pessoal sensível. A selfie já pede autorização específica e em destaque. Antes de ligar, falta: política de privacidade explicando a busca facial, um canal para o atleta pedir a remoção dos seus rostos e a revisão de um advogado sobre a indexação das fotos dos eventos (base legal, prazo de retenção e relatório de impacto).
+
+## Pedidos e WhatsApp dos clientes
+
+- O carrinho pede o WhatsApp de quem compra (obrigatório). Ele fica no pedido (`orders.buyer_phone`) e também vai para o PagBank.
+- Em `/painel/pedidos` (só para quem está em `ADMIN_EMAILS`) aparecem todos os pedidos, com filtro por situação e busca por nome, e-mail ou WhatsApp.
+- O botão **WhatsApp** abre a conversa com a mensagem pronta: link das fotos para pedido pago, ou oferta de ajuda para pedido aguardando o Pix.
+- Caixa **desmarcada** no carrinho: "Quero receber no WhatsApp aviso de álbuns novos e promoções" (`orders.marketing_optin`). Só quem marcou pode receber propaganda (LGPD).
+- Busca por número de peito sem resultado: o corredor deixa nome e WhatsApp para ser avisado (`photo_alerts`).
+- Perfil do fotógrafo no painel: nome, WhatsApp, Instagram e o que fotografa.
+- `/painel/leads` (só `ADMIN_EMAILS`): abas Avisos de fotos (mostra quando já tem foto daquele peito e o botão **Avisar**), Clientes (agrupados por WhatsApp, com total gasto) e Fotógrafos. Filtro "Só quem autorizou", botão "Pediu para sair" e **Exportar planilha** (CSV que abre no Excel).
+- Instalação antiga: rode `supabase/migracao-leads.sql` no SQL Editor **antes** de subir este código.

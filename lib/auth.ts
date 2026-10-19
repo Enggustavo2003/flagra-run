@@ -27,3 +27,12 @@ export async function requirePhotographer() {
     );
   return { supabase, user };
 }
+
+/** Administradores da plataforma (ADMIN_EMAILS). Vazio = ninguém. */
+export function isAdmin(email: string | undefined) {
+  const list = (process.env.ADMIN_EMAILS ?? "")
+    .split(",")
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
+  return !!email && list.includes(email.toLowerCase());
+}

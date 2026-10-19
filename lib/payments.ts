@@ -58,6 +58,7 @@ export async function createPixPayment(o: {
   email: string;
   name: string;
   cpf: string;
+  phone: string;
   photoCount: number;
 }) {
   const site = process.env.NEXT_PUBLIC_SITE_URL ?? "";
@@ -69,7 +70,12 @@ export async function createPixPayment(o: {
     headers: { "x-idempotency-key": o.orderId },
     body: JSON.stringify({
       reference_id: o.orderId,
-      customer: { name: o.name, email: o.email, tax_id: o.cpf },
+      customer: {
+        name: o.name,
+        email: o.email,
+        tax_id: o.cpf,
+        phones: [{ country: "55", area: o.phone.slice(0, 2), number: o.phone.slice(2), type: "MOBILE" }],
+      },
       items: [
         {
           reference_id: "fotos",
