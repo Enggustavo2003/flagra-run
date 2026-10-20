@@ -1,0 +1,35 @@
+{
+  "expo": {
+    "name": "Flagra Capture",
+    "slug": "flagra-capture",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "br.com.flagrarun.capture"
+    },
+    "android": {
+      "package": "br.com.flagrarun.capture",
+      "adaptiveIcon": {
+        "backgroundColor": "#0F1311",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "INTERNET",
+        "ACCESS_WIFI_STATE",
+        "ACCESS_NETWORK_STATE",
+        "WAKE_LOCK"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "backgroundColor": "#0F1311",
+    "scheme": "flagracapture"
+  }
+}

@@ -1,0 +1,63 @@
+name: App Flagra Capture (APK Android)
+
+# Gera o APK sempre que algo muda em captura/ (ou pelo botão "Run workflow").
+on:
+  push:
+    paths:
+      - "captura/**"
+      - ".github/workflows/captura-apk.yml"
+  workflow_dispatch:
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: captura
+    env:
+      # Settings > Secrets and variables > Actions > Variables
+      EXPO_PUBLIC_SUPABASE_URL: ${{ vars.EXPO_PUBLIC_SUPABASE_URL }}
+      EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
+      EXPO_PUBLIC_SITE_URL: ${{ vars.EXPO_PUBLIC_SITE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Conferir variáveis
+        run: |
+          if [ -z "$EXPO_PUBLIC_SUPABASE_URL" ] || [ -z "$EXPO_PUBLIC_SUPABASE_ANON_KEY" ]; then
+            echo "::error::Cadastre EXPO_PUBLIC_SUPABASE_URL e EXPO_PUBLIC_SUPABASE_ANON_KEY em Settings > Secrets and variables > Actions > Variables"
+            exit 1
+          fi
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: captura/package-lock.json
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Conferir tipos
+        run: npx tsc --noEmit
+
+      - name: Gerar projeto Android
+        run: npx expo prebuild --platform android --no-install --clean
+
+      - name: Compilar APK
+        working-directory: captura/android
+        run: ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a,armeabi-v7a --no-daemon
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: flagra-capture-${{ github.run_number }}
+          path: captura/android/app/build/outputs/apk/release/app-release.apk
+          retention-days: 30

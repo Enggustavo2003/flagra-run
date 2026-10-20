@@ -210,3 +210,7 @@ create table if not exists public.photographer_payouts (
 );
 create index if not exists photographer_payouts_pg_idx on public.photographer_payouts (photographer_id);
 alter table public.photographer_payouts enable row level security; -- só o servidor acessa
+
+-- ---------- App Flagra Capture ----------
+alter table public.photos add column if not exists source text not null default 'site';
+alter table public.photos add column if not exists upload_size text;

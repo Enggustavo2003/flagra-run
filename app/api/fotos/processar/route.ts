@@ -5,7 +5,7 @@ import { emailAllowed } from "@/lib/auth";
 import { indexAndRecord } from "@/lib/faces-db";
 import { isUuid } from "@/lib/format";
 import { supabaseAdmin } from "@/lib/supabase/admin";
-import { supabaseServer } from "@/lib/supabase/server";
+import { supabaseForRequest } from "@/lib/supabase/request";
 import { makePreview } from "@/lib/watermark";
 
 export const runtime = "nodejs";
@@ -13,15 +13,16 @@ export const maxDuration = 60;
 
 // Depois que o navegador sobe a foto original, gera a prévia com marca d'água e cadastra a foto.
 export async function POST(req: Request) {
-  const supabase = await supabaseServer();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // Site manda o cookie; o app Flagra Capture manda "Authorization: Bearer <token>"
+  const { supabase, user } = await supabaseForRequest(req);
   if (!user || !emailAllowed(user.email)) return NextResponse.json({ error: "Faça login" }, { status: 401 });
 
   const body = await req.json().catch(() => null);
   const eventId = body?.eventId;
   const path = body?.path;
+  // Origem e tamanho escolhido no envio (só o app manda). "rapido" = 3000 px, "original" = arquivo cheio.
+  const source = body?.source === "app" ? "app" : "site";
+  const uploadSize = body?.size === "rapido" || body?.size === "original" ? body.size : null;
   if (!isUuid(eventId) || typeof path !== "string" || !path.startsWith(`${user.id}/${eventId}/`)) {
     return NextResponse.json({ error: "Dados inválidos" }, { status: 400 });
   }
@@ -49,19 +50,24 @@ export async function POST(req: Request) {
     .upload(previewPath, preview.buffer, { contentType: "image/jpeg", cacheControl: "31536000" });
   if (uErr) return NextResponse.json({ error: "Falha ao salvar a prévia" }, { status: 500 });
 
-  const { data: photo, error: iErr } = await admin
+  const row = {
+    id: photoId,
+    event_id: eventId,
+    original_path: path,
+    preview_path: previewPath,
+    width: preview.width,
+    height: preview.height,
+  };
+  let { data: photo, error: iErr } = await admin
     .from("photos")
-    .insert({
-      id: photoId,
-      event_id: eventId,
-      original_path: path,
-      preview_path: previewPath,
-      width: preview.width,
-      height: preview.height,
-    })
+    .insert({ ...row, source, upload_size: uploadSize })
     .select("id, preview_path, bibs")
     .single();
-  if (iErr) return NextResponse.json({ error: "Falha ao cadastrar a foto" }, { status: 500 });
+  // Banco ainda sem a migracao-captura.sql: cadastra sem os campos novos
+  if (iErr && (iErr.code === "PGRST204" || iErr.code === "42703")) {
+    ({ data: photo, error: iErr } = await admin.from("photos").insert(row).select("id, preview_path, bibs").single());
+  }
+  if (iErr || !photo) return NextResponse.json({ error: "Falha ao cadastrar a foto" }, { status: 500 });
 
   // busca por selfie: indexa os rostos na versão limpa (só quando FACE_SEARCH=1)
   await indexAndRecord(photoId, preview.clean);
