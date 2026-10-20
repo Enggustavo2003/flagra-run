@@ -26,8 +26,7 @@ jobs:
       - name: Conferir variáveis
         run: |
           if [ -z "$EXPO_PUBLIC_SUPABASE_URL" ] || [ -z "$EXPO_PUBLIC_SUPABASE_ANON_KEY" ]; then
-            echo "::error::Cadastre EXPO_PUBLIC_SUPABASE_URL e EXPO_PUBLIC_SUPABASE_ANON_KEY em Settings > Secrets and variables > Actions > Variables"
-            exit 1
+            echo "::warning::Sem EXPO_PUBLIC_SUPABASE_URL / EXPO_PUBLIC_SUPABASE_ANON_KEY: o APK compila, mas não entra no Flagra Run. Cadastre em Settings > Secrets and variables > Actions > Variables."
           fi
 
       - uses: actions/setup-node@v4
