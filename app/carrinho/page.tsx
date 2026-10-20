@@ -185,7 +185,8 @@ export default function Carrinho() {
           {busy ? "Gerando o Pix…" : `Pagar ${brl(t.total)} no Pix`}
         </button>
         <p className="note">
-          Depois do pagamento, as fotos em alta resolução ficam na página do pedido. Guarde o link dela.
+          Depois do pagamento, as fotos em alta resolução ficam na página do pedido. Guarde o link dela. Ao pagar, você
+          concorda com os <Link href="/termos">Termos de uso</Link>.
         </p>
       </form>
     </div>

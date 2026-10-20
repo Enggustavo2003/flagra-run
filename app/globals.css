@@ -192,3 +192,13 @@ footer.site .wrap { padding-block: 24px; display: flex; justify-content: space-b
 .admin-two > * { min-width: 0; }
 @media (max-width: 760px) { .admin-two { grid-template-columns: 1fr; } .kpis, .kpis.small { grid-template-columns: repeat(2, minmax(0, 1fr)); } .kpi b { font-size: 22px; } .kpi.kpi-main b { font-size: 28px; } }
 .checks label { white-space: nowrap; }
+
+/* ---------- proteção das prévias ---------- */
+img[src*="/previews/"] { -webkit-user-drag: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+html.shield img[src*="/previews/"] { filter: blur(28px) brightness(.55); transition: filter .05s; }
+html.shield body::after {
+  content: "Foto protegida · compre para baixar sem marca d'água";
+  position: fixed; inset: auto 0 calc(24px + env(safe-area-inset-bottom, 0px)); margin: 0 auto; width: max-content; max-width: calc(100% - 32px);
+  background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 999px; font-weight: 600; font-size: 14px; z-index: 9999; text-align: center;
+}
+@media print { img[src*="/previews/"] { display: none !important; } body::before { content: "Impressão desativada. As fotos estão em flagrarun.com.br"; } }

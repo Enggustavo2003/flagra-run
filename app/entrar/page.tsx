@@ -88,6 +88,9 @@ function LoginForm() {
             <button className="btn" disabled={busy}>
               {busy ? "Entrando…" : mode === "senha" ? "Entrar" : "Receber link de acesso"}
             </button>
+            <p className="muted" style={{ margin: 0, fontSize: 13 }}>
+              Ao entrar como fotógrafo, você concorda com os <a href="/termos">Termos de uso</a>.
+            </p>
             {mode === "senha" && (
               <p className="muted" style={{ margin: 0, fontSize: 13 }}>
                 Primeira vez ou esqueceu a senha? Entre pelo <b>link no e-mail</b> e crie a senha no painel.

@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
+import { PhotoShield } from "@/components/photo-shield";
 import { CartCount, CartProvider } from "@/components/cart";
 import "./globals.css";
 
@@ -26,6 +27,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         <CartProvider>
+          <PhotoShield />
           <header className="top">
             <div className="wrap">
               <Link href="/" className="brand" aria-label="Flagra Run, início">
@@ -51,7 +53,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <div className="wrap">
               <span>© {new Date().getFullYear()} Flagra Run · Fotos de corridas e eventos esportivos</span>
               <span>
-                <Link href="/privacidade">Privacidade</Link> · <Link href="/remover-rosto">Remover minhas fotos</Link> · Pix via PagBank
+                <Link href="/termos">Termos de uso</Link> · <Link href="/privacidade">Privacidade</Link> · <Link href="/remover-rosto">Remover minhas fotos</Link> · Pix via PagBank
               </span>
             </div>
           </footer>

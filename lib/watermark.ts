@@ -9,7 +9,7 @@ import sharp from "sharp";
 export async function makePreview(input: Buffer) {
   const { data, info } = await sharp(input)
     .rotate()
-    .resize({ width: 1600, height: 1600, fit: "inside", withoutEnlargement: true })
+    .resize({ width: 1400, height: 1400, fit: "inside", withoutEnlargement: true })
     .jpeg({ quality: 85 })
     .toBuffer({ resolveWithObject: true });
 
@@ -34,12 +34,19 @@ export async function makePreview(input: Buffer) {
       const cy = y.toFixed(1);
       marks +=
         `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#000" stroke-opacity="0.18" stroke-width="${r * 0.42}"/>` +
-        `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#fff" stroke-opacity="0.5" stroke-width="${r * 0.3}"/>` +
-        `<circle cx="${cx}" cy="${cy}" r="${r * 0.26}" fill="#fff" fill-opacity="0.5"/>`;
+        `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#fff" stroke-opacity="0.58" stroke-width="${r * 0.3}"/>` +
+        `<circle cx="${cx}" cy="${cy}" r="${r * 0.26}" fill="#fff" fill-opacity="0.58"/>`;
     }
   }
 
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">${bands}${marks}</svg>`;
+  // marca grande no centro, onde normalmente está o corredor: recortar não tira
+  const R = Math.min(W, H) * 0.16;
+  const center =
+    `<circle cx="${W / 2}" cy="${H / 2}" r="${R}" fill="none" stroke="#000" stroke-opacity="0.16" stroke-width="${R * 0.36}"/>` +
+    `<circle cx="${W / 2}" cy="${H / 2}" r="${R}" fill="none" stroke="#fff" stroke-opacity="0.42" stroke-width="${R * 0.26}"/>` +
+    `<circle cx="${W / 2}" cy="${H / 2}" r="${R * 0.26}" fill="#fff" fill-opacity="0.42"/>`;
+
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">${bands}${marks}${center}</svg>`;
   const buffer = await sharp(data)
     .composite([{ input: Buffer.from(svg), top: 0, left: 0 }])
     .jpeg({ quality: 78, mozjpeg: true })
