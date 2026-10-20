@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
+import { CookieNotice } from "@/components/cookie-notice";
 import { PhotoShield } from "@/components/photo-shield";
 import { CartCount, CartProvider } from "@/components/cart";
 import "./globals.css";
@@ -53,10 +54,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <div className="wrap">
               <span>© {new Date().getFullYear()} Flagra Run · Fotos de corridas e eventos esportivos</span>
               <span>
-                <Link href="/termos">Termos de uso</Link> · <Link href="/privacidade">Privacidade</Link> · <Link href="/remover-rosto">Remover minhas fotos</Link> · Pix via PagBank
+                <Link href="/termos">Termos de uso</Link> · <Link href="/privacidade">Privacidade</Link> · <Link href="/cookies">Cookies</Link> ·<Link href="/remover-rosto">Remover minhas fotos</Link> · Pix via PagBank
               </span>
             </div>
           </footer>
+          <CookieNotice />
         </CartProvider>
       </body>
     </html>
