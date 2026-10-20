@@ -5,7 +5,7 @@ import { useEffect } from "react";
  * Dificulta copiar as prévias (fotos com marca d'água).
  * - bloqueia clique direito, arrastar e "salvar imagem" nas prévias;
  * - borra as prévias quando a janela perde o foco (ferramenta de recorte, Win+Shift+S, troca de aba);
- * - borra e troca a área de transferência quando aperta Print Screen ou os atalhos de print do Mac;
+ * - borra as prévias quando aperta Print Screen ou os atalhos de print do Mac;
  * - esconde as fotos na impressão.
  * Navegador nenhum consegue bloquear print do celular ou foto da tela: a proteção de verdade é a marca d'água.
  */
@@ -33,7 +33,6 @@ export function PhotoShield() {
       const winSnip = isWin && (e.key === "Meta" || (e.metaKey && e.shiftKey));
       if (e.key === "PrintScreen" || macShot || winSnip) {
         shield(2500);
-        navigator.clipboard?.writeText("Foto protegida · compre sem marca d'água em flagrarun.com.br").catch(() => {});
       }
     };
     const onBlur = () => shield();
