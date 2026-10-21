@@ -76,6 +76,12 @@ FTP, fila, Rápido/Original e as telas de captura não mudam.
 - **Várias câmeras:** testado com 3 câmeras enviando ao mesmo tempo. Cada foto ganha um nome único no celular, sem sobrescrever.
 - **Rápido tira os dados EXIF** (horário, câmera). Original mantém. Se um dia precisar do horário da foto (ex.: casar com o tempo do chip), mandar o horário junto no envio.
 
+## Próximas versões
+
+- **Revisar antes de vender (Fase 2):** aba para ver as fotos recebidas e apagar as ruins antes de irem para a venda.
+- **Ajuste automático simples:** brilho e contraste iguais para todas as fotos do evento, com um predefinido escolhido pelo fotógrafo. Edição manual foto a foto fica fora do app, de propósito: atrasa a venda.
+- Tela apagada com o FTP ligado (serviço em primeiro plano), alerta automático por WhatsApp e leitura do número de peito (Fase 4), CCAPI, publicação na Play Store, venda separada (login, cobrança e escolha de destino) e versão para iPhone.
+
 ## Desenvolvimento
 
 ```bash
