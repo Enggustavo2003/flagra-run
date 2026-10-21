@@ -1,4 +1,4 @@
--- Flagra Run: banco de dados
+-- WOD Fotos: banco de dados
 -- Rode este arquivo inteiro uma vez no Supabase > SQL Editor > New query > Run.
 
 create extension if not exists pgcrypto;

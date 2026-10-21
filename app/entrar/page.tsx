@@ -17,7 +17,7 @@ function LoginForm() {
   const [sent, setSent] = useState(false);
   const [error, setError] = useState(
     params.get("erro") === "nao-autorizado"
-      ? "Este e-mail não está liberado como fotógrafo. Fale com o Flagra Run."
+      ? "Este e-mail não está liberado como fotógrafo. Fale com o WOD Fotos."
       : params.get("erro")
         ? "O link de acesso expirou. Peça um novo."
         : ""

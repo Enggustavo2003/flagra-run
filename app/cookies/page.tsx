@@ -11,10 +11,10 @@ const S = {
 export default function Cookies() {
   return (
     <div className="wrap" style={{ paddingBlock: "36px 60px" }}>
-      <span className="label">Flagra Run</span>
+      <span className="label">WOD Fotos</span>
       <h1 style={{ fontSize: 40, marginTop: 8 }}>Cookies</h1>
       <p className="muted" style={S.p}>
-        Resumo: o Flagra Run usa só o que é necessário para o site funcionar. Não usamos cookies de publicidade, de
+        Resumo: o WOD Fotos usa só o que é necessário para o site funcionar. Não usamos cookies de publicidade, de
         rastreamento nem de análise de comportamento. Última atualização: outubro de 2026.
       </p>
 
@@ -57,7 +57,7 @@ export default function Cookies() {
 
       <h2 style={S.h2}>Dúvidas</h2>
       <p style={S.p}>
-        Fale com a gente pelo Instagram <b>@flagrarun</b>. O resto do tratamento de dados está na{" "}
+        Fale com a gente pelo Instagram <b>@wodfotos</b>. O resto do tratamento de dados está na{" "}
         <Link href="/privacidade">Política de privacidade</Link>.
       </p>
     </div>

@@ -6,7 +6,7 @@ import { CartCount, CartProvider } from "@/components/cart";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: { default: "Flagra Run | Fotos da sua prova", template: "%s | Flagra Run" },
+  title: { default: "WOD Fotos | Fotos da sua prova", template: "%s | WOD Fotos" },
   description:
     "Encontre e compre as fotos da sua corrida, pedal ou competição pelo número de peito. Sem marca d'água, em alta resolução.",
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
@@ -31,12 +31,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <PhotoShield />
           <header className="top">
             <div className="wrap">
-              <Link href="/" className="brand" aria-label="Flagra Run, início">
+              <Link href="/" className="brand" aria-label="WOD Fotos, início">
                 <span className="brand-mark">
                   <i />
                 </span>
                 <b>
-                  flagra<span>run</span>
+                  wod<span>fotos</span>
                 </b>
               </Link>
               <nav className="main" aria-label="Principal">
@@ -52,7 +52,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <main>{children}</main>
           <footer className="site">
             <div className="wrap">
-              <span>© {new Date().getFullYear()} Flagra Run · Fotos de corridas e eventos esportivos</span>
+              <span>© {new Date().getFullYear()} WOD Fotos · Fotos de corridas e eventos esportivos</span>
               <span>
                 <Link href="/termos">Termos de uso</Link> · <Link href="/privacidade">Privacidade</Link> · <Link href="/cookies">Cookies</Link> ·<Link href="/remover-rosto">Remover minhas fotos</Link> · Pix via PagBank
               </span>

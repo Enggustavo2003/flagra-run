@@ -20,7 +20,7 @@ export function AdminView({ d, period }: { d: Dashboard; period: string }) {
       <div className="ev-head">
         <div>
           <span className="label">Administração</span>
-          <h1 style={{ marginTop: 6 }}>Flagra Run em números</h1>
+          <h1 style={{ marginTop: 6 }}>WOD Fotos em números</h1>
         </div>
         <div className="chips">
           {PERIODS.map(([v, label]) => (

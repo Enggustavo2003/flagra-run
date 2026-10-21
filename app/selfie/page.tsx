@@ -100,7 +100,7 @@ function SelfieInner() {
               />
               <span style={{ color: "var(--ink)" }}>
                 <b>Autorizo o uso da minha selfie para reconhecimento facial</b>, só para encontrar minhas fotos agora.
-                A selfie é comparada e descartada em seguida: o Flagra Run não guarda a imagem nem os dados do meu
+                A selfie é comparada e descartada em seguida: o WOD Fotos não guarda a imagem nem os dados do meu
                 rosto. <Link href="/privacidade">Política de privacidade</Link>.
               </span>
             </label>

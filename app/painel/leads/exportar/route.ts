@@ -46,7 +46,7 @@ export async function GET(req: Request) {
       list.map((a) => [a.name, formatPhone(a.phone), a.bib, a.optin, a.available, day(a.notifiedAt), day(a.createdAt)])
     );
   }
-  const name = `flagra-run-${aba}-${new Date().toISOString().slice(0, 10)}.csv`;
+  const name = `wodfotos-${aba}-${new Date().toISOString().slice(0, 10)}.csv`;
   return new NextResponse(body, {
     headers: {
       "Content-Type": "text/csv; charset=utf-8",
