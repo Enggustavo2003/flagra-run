@@ -3,7 +3,7 @@ import Link from "next/link";
 export const metadata = { title: "Privacidade" };
 
 /** Preencha quando a empresa estiver aberta. Enquanto estiver vazio, a linha não aparece no site. */
-const CONTROLADORA = ""; // ex.: "Flagra Run Fotografia LTDA, CNPJ 00.000.000/0001-00, Belo Horizonte/MG"
+const CONTROLADORA = ""; // ex.: "[Razão social] LTDA, CNPJ 00.000.000/0001-00, Belo Horizonte/MG"
 const GUARDA_DIAS = 90;
 
 const S = {
@@ -15,22 +15,22 @@ const S = {
 export default function Privacidade() {
   return (
     <div className="wrap" style={{ paddingBlock: "36px 60px" }}>
-      <span className="label">Flagra Run</span>
+      <span className="label">WOD Fotos</span>
       <h1 style={{ fontSize: 40, marginTop: 8 }}>Política de privacidade</h1>
       <p className="muted" style={S.p}>
-        Em linguagem simples: quais dados o Flagra Run guarda, por quê, com quem divide e como você exerce seus direitos
+        Em linguagem simples: quais dados o WOD Fotos guarda, por quê, com quem divide e como você exerce seus direitos
         pela Lei Geral de Proteção de Dados (LGPD, Lei 13.709/2018). Vale junto com os{" "}
         <Link href="/termos">Termos de uso</Link>. Última atualização: outubro de 2026.
       </p>
 
       <h2 style={S.h2}>1. Quem cuida dos seus dados</h2>
       <p style={S.p}>
-        O Flagra Run é a controladora dos dados tratados no site, ou seja, quem decide por que e como eles são usados.
+        O WOD Fotos é a controladora dos dados tratados no site, ou seja, quem decide por que e como eles são usados.
         {CONTROLADORA ? ` ${CONTROLADORA}.` : ""} Para qualquer pedido sobre dados, fale com a gente pelo Instagram{" "}
-        <b>@flagrarun</b> ou pelo WhatsApp informado nas mensagens do Flagra Run.
+        <b>@wodfotos</b> ou pelo WhatsApp informado nas mensagens do WOD Fotos.
       </p>
       <p style={S.p}>
-        O Flagra Run é para maiores de 18 anos como fotógrafo. Quem compra pode ser menor de idade com apoio de um
+        O WOD Fotos é para maiores de 18 anos como fotógrafo. Quem compra pode ser menor de idade com apoio de um
         responsável, e o responsável pode pedir qualquer providência sobre as fotos de um menor.
       </p>
 
@@ -38,7 +38,7 @@ export default function Privacidade() {
       <ul style={S.ul}>
         <li><b>Quem compra:</b> nome, e-mail e WhatsApp, para liberar as fotos, registrar o pedido e falar com você sobre
           ele (base legal: execução do contrato). O CPF é enviado só ao PagBank, que exige o dado para gerar o Pix. O
-          Flagra Run não guarda o CPF nem dados do pagamento.</li>
+          WOD Fotos não guarda o CPF nem dados do pagamento.</li>
         <li><b>Novidades e promoções:</b> só se você marcar a caixa de autorização no carrinho (consentimento). Para
           sair, é só responder a mensagem ou falar com a gente.</li>
         <li><b>Aviso de fotos:</b> se você pedir para ser avisado quando suas fotos chegarem, guardamos nome, WhatsApp e
@@ -112,7 +112,7 @@ export default function Privacidade() {
 
       <h2 style={S.h2}>7. Por quanto tempo guardamos</h2>
       <ul style={S.ul}>
-        <li><b>Fotos compradas:</b> ficam disponíveis por pelo menos {GUARDA_DIAS} dias. O Flagra Run não é serviço de
+        <li><b>Fotos compradas:</b> ficam disponíveis por pelo menos {GUARDA_DIAS} dias. O WOD Fotos não é serviço de
           backup, então baixe as suas.</li>
         <li><b>Dados do pedido e do fotógrafo:</b> enquanto a conta existir e pelo tempo que a lei exigir (fiscal, defesa
           em processos).</li>

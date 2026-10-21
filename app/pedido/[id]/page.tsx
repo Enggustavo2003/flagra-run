@@ -37,7 +37,7 @@ export default async function Pedido({ params, searchParams }: Props) {
           db.storage.from("originals").createSignedUrl(path, 60 * 60 * 24),
           db.storage
             .from("originals")
-            .createSignedUrl(path, 60 * 60 * 24, { download: `flagra-run-${i + 1}.${ext}` }),
+            .createSignedUrl(path, 60 * 60 * 24, { download: `wodfotos-${i + 1}.${ext}` }),
         ]);
         return { view: view.data?.signedUrl, dl: dl.data?.signedUrl, ...it };
       })

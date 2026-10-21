@@ -78,7 +78,7 @@ async function AlertsTab({ site, onlyOptin }: { site: string; onlyOptin: boolean
           <tbody>
             {list.map((a) => {
               const first = a.name.split(" ")[0] || "";
-              const msg = `Oi${first ? ` ${first}` : ""}! Aqui é do Flagra Run. Chegaram fotos do peito ${a.bib}: ${site}/busca?q=${a.bib}`;
+              const msg = `Oi${first ? ` ${first}` : ""}! Aqui é do WOD Fotos. Chegaram fotos do peito ${a.bib}: ${site}/busca?q=${a.bib}`;
               return (
                 <tr key={a.id}>
                   <td className="mono">{day(a.createdAt)}</td>

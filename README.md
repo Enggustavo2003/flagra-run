@@ -1,4 +1,4 @@
-# Flagra Run
+# WOD Fotos
 
 Marketplace de fotos de corridas e eventos esportivos. O fotógrafo sobe o álbum, o atleta acha as fotos pelo número de peito, paga no Pix e baixa em alta resolução, sem marca d'água.
 
@@ -22,15 +22,15 @@ Faça na ordem. Tempo total: uns 40 minutos.
    - `anon public` → vai em `NEXT_PUBLIC_SUPABASE_ANON_KEY`
    - `service_role` → vai em `SUPABASE_SERVICE_ROLE_KEY` (secreta, nunca compartilhe)
 4. Vá em **Authentication > URL Configuration**:
-   - **Site URL:** o endereço do site (ex.: `https://flagrarun.com.br`)
-   - **Redirect URLs:** adicione `https://flagrarun.com.br/auth/callback` e também o endereço provisório da Vercel, ex.: `https://flagra-run.vercel.app/auth/callback`
+   - **Site URL:** o endereço do site (ex.: `https://wodfotos.com.br`)
+   - **Redirect URLs:** adicione `https://wodfotos.com.br/auth/callback` e também o endereço provisório da Vercel, ex.: `https://flagra-run.vercel.app/auth/callback`
 
 ### 2. PagBank (receber no Pix)
 
 1. **Teste (sandbox):** crie uma conta em https://portaldev.pagbank.com.br, abra a aba **Tokens** e copie o token → `PAGBANK_TOKEN`, com `PAGBANK_ENV=sandbox`.
 2. **Produção (dinheiro de verdade):** na sua conta PagBank, pelo computador, vá em **Vendas > Integrações > Gerar Token** → `PAGBANK_TOKEN`, com `PAGBANK_ENV=production`.
 3. O aviso de pagamento (webhook) é configurado sozinho: cada Pix gerado já informa ao PagBank o endereço `https://SEU-DOMINIO/api/webhooks/pagbank`. Não precisa cadastrar nada no painel.
-4. O site pede o CPF de quem compra, porque o PagBank exige para gerar o Pix. O CPF vai só para o PagBank, o Flagra Run não guarda.
+4. O site pede o CPF de quem compra, porque o PagBank exige para gerar o Pix. O CPF vai só para o PagBank, o WOD Fotos não guarda.
 
 > Já tinha rodado o `schema.sql` antigo (da versão com Mercado Pago)? Rode uma vez o `supabase/migracao-pagbank.sql` no SQL Editor.
 
@@ -45,7 +45,7 @@ Faça na ordem. Tempo total: uns 40 minutos.
 | `NEXT_PUBLIC_SUPABASE_URL` | do passo 1.3 |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | do passo 1.3 |
 | `SUPABASE_SERVICE_ROLE_KEY` | do passo 1.3 |
-| `NEXT_PUBLIC_SITE_URL` | `https://flagrarun.com.br` (sem barra no final) |
+| `NEXT_PUBLIC_SITE_URL` | `https://wodfotos.com.br` (sem barra no final) |
 | `PAGBANK_TOKEN` | do passo 2 |
 | `PAGBANK_ENV` | `sandbox` para testar, `production` para valer |
 | `PHOTOGRAPHER_EMAILS` | seu e-mail (só quem estiver aqui entra no painel) |

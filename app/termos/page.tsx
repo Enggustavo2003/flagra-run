@@ -3,7 +3,7 @@ import Link from "next/link";
 export const metadata = { title: "Termos de uso" };
 
 /** Preencha quando a empresa estiver aberta. Enquanto estiver vazio, a linha não aparece no site. */
-const OPERADORA = ""; // ex.: "Flagra Run Fotografia LTDA, CNPJ 00.000.000/0001-00, Belo Horizonte/MG"
+const OPERADORA = ""; // ex.: "[Razão social] LTDA, CNPJ 00.000.000/0001-00, Belo Horizonte/MG"
 const REEMBOLSO_DIAS = 7;
 const GUARDA_DIAS = 90;
 
@@ -16,7 +16,7 @@ const S = {
 export default function Termos() {
   return (
     <div className="wrap" style={{ paddingBlock: "36px 60px" }}>
-      <span className="label">Flagra Run</span>
+      <span className="label">WOD Fotos</span>
       <h1 style={{ fontSize: 40, marginTop: 8 }}>Termos de uso</h1>
       <p className="muted" style={S.p}>
         As regras do site em linguagem simples. Ao criar uma conta, comprar uma foto ou publicar um álbum, você concorda
@@ -25,7 +25,7 @@ export default function Termos() {
 
       <h2 style={S.h2}>1. Quem é quem</h2>
       <ul style={S.ul}>
-        <li><b>Flagra Run:</b> a plataforma, de Belo Horizonte, que liga fotógrafos a quem aparece nas fotos.
+        <li><b>WOD Fotos:</b> a plataforma, de Belo Horizonte, que liga fotógrafos a quem aparece nas fotos.
           {OPERADORA ? ` Operada por ${OPERADORA}.` : ""}</li>
         <li><b>Fotógrafo:</b> pessoa (a partir de 18 anos) ou empresa que publica álbuns e vende as fotos que tirou.</li>
         <li><b>Comprador:</b> quem escolhe e paga por fotos.</li>
@@ -34,11 +34,11 @@ export default function Termos() {
         <li><b>Usuário:</b> qualquer um dos anteriores.</li>
       </ul>
 
-      <h2 style={S.h2}>2. O que o Flagra Run faz (e o que não faz)</h2>
+      <h2 style={S.h2}>2. O que o WOD Fotos faz (e o que não faz)</h2>
       <p style={S.p}>
         O fotógrafo publica o álbum; o atleta encontra as próprias fotos pelo número de peito ou por selfie, paga no Pix
-        e baixa a foto sem marca d&apos;água. O Flagra Run apenas <b>intermedeia</b> essa venda. As fotos são de autoria
-        e responsabilidade do fotógrafo, e o Flagra Run não é parte do que for combinado entre os usuários fora do site.
+        e baixa a foto sem marca d&apos;água. O WOD Fotos apenas <b>intermedeia</b> essa venda. As fotos são de autoria
+        e responsabilidade do fotógrafo, e o WOD Fotos não é parte do que for combinado entre os usuários fora do site.
         Não prometemos que cada atleta terá fotos de cada evento nem que o site ficará sempre no ar.
       </p>
 
@@ -48,7 +48,7 @@ export default function Termos() {
           preenchem o perfil com dados verdadeiros. Informação falsa pode ser crime e leva à exclusão da conta.</li>
         <li>A conta é pessoal e intransferível. Guarde sua senha: o que for feito com ela é de sua responsabilidade.
           Se suspeitar de uso indevido, avise a gente na hora.</li>
-        <li>O Flagra Run pode pedir documentos ou dados extras para confirmar a identidade do fotógrafo, e pode
+        <li>O WOD Fotos pode pedir documentos ou dados extras para confirmar a identidade do fotógrafo, e pode
           recusar, suspender ou excluir contas, a qualquer momento, que descumpram estes termos, a lei ou que sirvam
           para fraude ou conduta ofensiva.</li>
         <li>Menores de 18 anos usam o site com apoio de um responsável. Fotógrafos precisam ter 18 anos ou mais.</li>
@@ -65,7 +65,7 @@ export default function Termos() {
         <li><b>Entrega:</b> assim que o Pix é confirmado, as fotos ficam na página do pedido, com links de download
           renovados a cada acesso. Guarde o link da página. Se perder, fale com a gente pelo WhatsApp informado.</li>
         <li><b>Prazo de guarda:</b> mantemos as fotos compradas disponíveis por pelo menos {GUARDA_DIAS} dias. O
-          Flagra Run não é serviço de backup: baixe e guarde as suas.</li>
+          WOD Fotos não é serviço de backup: baixe e guarde as suas.</li>
       </ul>
 
       <h2 style={S.h2}>5. Arrependimento, troca e reembolso</h2>
@@ -74,7 +74,7 @@ export default function Termos() {
         <li>Se você se arrepender da compra, devolvemos o valor se pedir em até <b>{REEMBOLSO_DIAS} dias corridos</b>{" "}
           da compra <b>e</b> ainda não tiver baixado as fotos, já que o arquivo baixado não tem como ser devolvido.</li>
         <li>O reembolso volta por Pix, para a conta de quem pagou, em até 10 dias úteis depois de aprovado.</li>
-        <li>Para pedir: WhatsApp ou Instagram <b>@flagrarun</b>, informando o nome, o e-mail e o número do pedido. Seus
+        <li>Para pedir: WhatsApp ou Instagram <b>@wodfotos</b>, informando o nome, o e-mail e o número do pedido. Seus
           direitos do Código de Defesa do Consumidor continuam valendo.</li>
       </ul>
 
@@ -84,7 +84,7 @@ export default function Termos() {
         Para proteger o trabalho dos fotógrafos, o site usa marca d&apos;água e travas que podem borrar a imagem ao
         tentar copiar, arrastar, imprimir ou capturar a tela. Nenhuma trava é perfeita, e o que vale é a regra:
         é proibido baixar, capturar a tela, recortar ou retirar a marca d&apos;água para usar a prévia sem comprar. Isso
-        viola o direito autoral (Lei 9.610/1998), e o Flagra Run pode bloquear o acesso de quem fizer isso, sem
+        viola o direito autoral (Lei 9.610/1998), e o WOD Fotos pode bloquear o acesso de quem fizer isso, sem
         prejuízo das medidas legais do fotógrafo.
       </p>
 
@@ -92,23 +92,23 @@ export default function Termos() {
       <ul style={S.ul}>
         <li><b>Autoria:</b> você declara que é o autor das fotos, ou que recebeu autorização total para vendê-las. O
           direito autoral continua seu, e a responsabilidade pelas imagens publicadas também.</li>
-        <li><b>Licença ao Flagra Run:</b> você autoriza o site a guardar as fotos, gerar prévias com marca d&apos;água,
+        <li><b>Licença ao WOD Fotos:</b> você autoriza o site a guardar as fotos, gerar prévias com marca d&apos;água,
           exibir, indexar rostos para a busca por selfie, entregar a foto a quem comprar e mostrar seu nome e perfil
-          como autor. Pode usar imagens de álbuns publicados (sempre com crédito) para divulgar o Flagra Run.</li>
+          como autor. Pode usar imagens de álbuns publicados (sempre com crédito) para divulgar o WOD Fotos.</li>
         <li><b>Autorizações:</b> cabe a você e ao organizador do evento obter as autorizações necessárias de local e de
           uso de imagem. Fotografe em lugares públicos ou com autorização.</li>
         <li><b>Conteúdo proibido:</b> nada de fotos ofensivas, íntimas, discriminatórias, violentas, ilegais ou que
           exponham alguém ao ridículo. Fotos que alguém peça para tirar do ar devem sair na hora.</li>
-        <li><b>Comissão:</b> o Flagra Run retém um percentual do valor bruto de cada venda, mostrado no seu painel antes de
+        <li><b>Comissão:</b> o WOD Fotos retém um percentual do valor bruto de cada venda, mostrado no seu painel antes de
           você publicar. Os 30 primeiros fotógrafos (Plano Fundador) ficam com 10% para sempre; os demais, com 12%.
           Sem mensalidade, sem taxa de upload, com a busca por selfie incluída. Mudanças futuras de taxa valem só para
           vendas novas e são avisadas antes.</li>
         <li><b>Repasse:</b> o valor das suas vendas, já descontada a comissão, é pago por Pix, com saldo e histórico
           visíveis no painel. Taxas de pagamento do PagBank e tributos sobre o seu ganho são tratados conforme a lei;
           quem declara e recolhe os seus impostos é você.</li>
-        <li><b>Retirada pelo site:</b> o Flagra Run pode tirar do ar, sem aviso prévio, fotos que violem estes termos ou
+        <li><b>Retirada pelo site:</b> o WOD Fotos pode tirar do ar, sem aviso prévio, fotos que violem estes termos ou
           direitos de terceiros, e suspender contas reincidentes.</li>
-        <li><b>Fora da plataforma:</b> não use o Flagra Run para levar compradores a vender por fora ou para divulgar
+        <li><b>Fora da plataforma:</b> não use o WOD Fotos para levar compradores a vender por fora ou para divulgar
           serviço concorrente nos álbuns.</li>
       </ul>
 
@@ -123,25 +123,25 @@ export default function Termos() {
       <h2 style={S.h2}>9. Denúncias</h2>
       <p style={S.p}>
         Viu uma foto com direito autoral violado, sua imagem usada de forma indevida ou conteúdo ofensivo? Fale com a
-        gente pelo Instagram <b>@flagrarun</b> ou pelo WhatsApp do Flagra Run, com o link da foto. Analisamos rápido e
+        gente pelo Instagram <b>@wodfotos</b> ou pelo WhatsApp do WOD Fotos, com o link da foto. Analisamos rápido e
         tiramos do ar o que for contestado enquanto apuramos.
       </p>
 
       <h2 style={S.h2}>10. Uso do site e propriedade intelectual</h2>
       <ul style={S.ul}>
-        <li>O site, a marca Flagra Run, o logotipo, o código e o banco de dados são do Flagra Run. Você recebe apenas
+        <li>O site, a marca WOD Fotos, o logotipo, o código e o banco de dados são do WOD Fotos. Você recebe apenas
           uma licença de uso limitada, não exclusiva e intransferível.</li>
         <li>É proibido usar robôs, scripts ou outras ferramentas para copiar fotos, listas ou dados do site em
           escala, tentar acessar áreas restritas, fazer engenharia reversa, ou sobrecarregar o serviço.</li>
         <li>É proibido usar o site para fraude, para burlar pagamentos ou para qualquer fim ilegal. Quem fizer isso pode ter
           o acesso bloqueado, sem prejuízo de outras medidas legais.</li>
-        <li>Não publique, em lugar nenhum, afirmações falsas ou ofensivas sobre o Flagra Run ou seus parceiros. Crítica
+        <li>Não publique, em lugar nenhum, afirmações falsas ou ofensivas sobre o WOD Fotos ou seus parceiros. Crítica
           honesta continua livre.</li>
       </ul>
 
       <h2 style={S.h2}>11. Pagamentos</h2>
       <p style={S.p}>
-        Os pagamentos são processados pelo PagBank, instituição de pagamento autorizada pelo Banco Central. O Flagra Run
+        Os pagamentos são processados pelo PagBank, instituição de pagamento autorizada pelo Banco Central. O WOD Fotos
         é a plataforma e não faz o papel de banco nem guarda o seu CPF ou dados de pagamento. O relacionamento
         financeiro com o PagBank segue as regras dele.
       </p>
@@ -156,7 +156,7 @@ export default function Termos() {
       <p style={S.p}>
         O site é oferecido como está e pode ficar fora do ar por manutenção ou falha de serviços parceiros
         (hospedagem, banco de dados, PagBank, reconhecimento facial). Nesses casos, nenhum pagamento é perdido: o pedido
-        continua registrado e as fotos ficam disponíveis assim que o site volta. O Flagra Run não responde pelo conteúdo
+        continua registrado e as fotos ficam disponíveis assim que o site volta. O WOD Fotos não responde pelo conteúdo
         das fotos, nem por danos causados entre usuários, por fatos de terceiros, caso fortuito ou força maior, sem
         prejuízo do que o Código de Defesa do Consumidor garante a quem compra.
       </p>
@@ -164,11 +164,11 @@ export default function Termos() {
       <h2 style={S.h2}>14. Mudanças, validade e contato</h2>
       <p style={S.p}>
         Estes termos podem mudar; a versão em vigor é sempre a desta página, com a data no topo, e mudanças relevantes
-        serão avisadas. Se alguma regra for considerada inválida, as demais continuam valendo. O Flagra Run não cria
+        serão avisadas. Se alguma regra for considerada inválida, as demais continuam valendo. O WOD Fotos não cria
         vínculo de sociedade ou emprego com os usuários e a falta de exigência de um direito não é renúncia a ele.
       </p>
       <p style={S.p}>
-        Dúvidas, pedidos e reclamações: Instagram <b>@flagrarun</b> ou o WhatsApp informado nas mensagens do Flagra Run.
+        Dúvidas, pedidos e reclamações: Instagram <b>@wodfotos</b> ou o WhatsApp informado nas mensagens do WOD Fotos.
         Fica eleito o foro de Belo Horizonte, MG, salvo o direito do consumidor de usar o foro do seu domicílio.
       </p>
     </div>

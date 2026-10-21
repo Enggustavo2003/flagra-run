@@ -96,8 +96,8 @@ export default async function Pedidos({ searchParams }: { searchParams: Promise<
                 const first = String(o.buyer_name).split(" ")[0];
                 const msg =
                   o.status === "paid"
-                    ? `Oi ${first}! Aqui é do Flagra Run. Suas fotos estão prontas para baixar, sem marca d'água: ${link}`
-                    : `Oi ${first}! Aqui é do Flagra Run. Vi que seu pedido ficou aguardando o Pix. Se precisar de ajuda, é só responder. O link do pedido é: ${link}`;
+                    ? `Oi ${first}! Aqui é do WOD Fotos. Suas fotos estão prontas para baixar, sem marca d'água: ${link}`
+                    : `Oi ${first}! Aqui é do WOD Fotos. Vi que seu pedido ficou aguardando o Pix. Se precisar de ajuda, é só responder. O link do pedido é: ${link}`;
                 return (
                   <tr key={o.id}>
                     <td className="mono" style={{ whiteSpace: "nowrap" }}>

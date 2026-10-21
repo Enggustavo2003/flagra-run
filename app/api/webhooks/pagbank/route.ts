@@ -19,7 +19,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true });
   }
 
-  // Acha o nosso pedido pelo reference_id (é o id do pedido Flagra Run) ou pelo id do PagBank
+  // Acha o nosso pedido pelo reference_id (é o id do pedido WOD Fotos) ou pelo id do PagBank
   let orderId: string | null = isUuid(body?.reference_id) ? body.reference_id : null;
   if (!orderId && typeof body?.id === "string") {
     const { data } = await supabaseAdmin()

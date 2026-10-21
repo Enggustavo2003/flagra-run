@@ -87,7 +87,7 @@ export default function RemoverRosto() {
         <div className="panel form">
           <h1 style={{ fontSize: 30 }}>Remover minhas fotos</h1>
           <p className="muted" style={{ margin: 0 }}>
-            Quer tirar uma foto sua do Flagra Run? Fale com a gente pelo Instagram @flagrarun com o link da foto. A
+            Quer tirar uma foto sua do WOD Fotos? Fale com a gente pelo Instagram @wodfotos com o link da foto. A
             gente tira do ar.
           </p>
         </div>
@@ -106,7 +106,7 @@ export default function RemoverRosto() {
             <p style={{ margin: 0 }}>
               {removed
                 ? `Pronto. ${removed} ${removed === 1 ? "foto saiu" : "fotos saíram"} da busca e da venda, e o seu rosto não aparece mais nelas.`
-                : "Não encontramos fotos suas no Flagra Run."}
+                : "Não encontramos fotos suas no WOD Fotos."}
             </p>
             <Link className="btn ghost" href="/">
               Voltar para o início
@@ -117,7 +117,7 @@ export default function RemoverRosto() {
             <p style={{ margin: 0 }}>
               {found.length
                 ? `Encontramos ${found.length} ${found.length === 1 ? "foto" : "fotos"} em que você aparece.`
-                : "Não encontramos fotos suas no Flagra Run. Se achar alguma, tente com outra selfie ou fale com a gente pelo Instagram @flagrarun."}
+                : "Não encontramos fotos suas no WOD Fotos. Se achar alguma, tente com outra selfie ou fale com a gente pelo Instagram @wodfotos."}
             </p>
             {found.length > 0 && (
               <>

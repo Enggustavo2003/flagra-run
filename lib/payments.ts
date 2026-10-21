@@ -79,7 +79,7 @@ export async function createPixPayment(o: {
       items: [
         {
           reference_id: "fotos",
-          name: `Fotos Flagra Run (${o.photoCount})`,
+          name: `WOD Fotos (${o.photoCount})`,
           quantity: 1,
           unit_amount: o.totalCents,
         },
@@ -87,7 +87,7 @@ export async function createPixPayment(o: {
       charges: [
         {
           reference_id: o.orderId,
-          description: `Flagra Run · ${o.photoCount} foto(s)`,
+          description: `WOD Fotos · ${o.photoCount} foto(s)`,
           amount: { value: o.totalCents, currency: "BRL" },
           payment_method: { type: "PIX", pix: { expiration_date: expires } },
         },
