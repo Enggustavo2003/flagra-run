@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
-import { FlatList, Pressable, RefreshControl, Text, View } from 'react-native';
+import { FlatList, Linking, Pressable, RefreshControl, Text, View } from 'react-native';
 import { C, SITE_URL } from './config';
 import { supabase } from './supabase';
+import { checarAtualizacao, type Atualizacao } from './versao';
 import { Btn, Logo, s } from './ui';
 
 export type EventRow = { id: string; name: string; city: string; event_date: string; photo_count: number; published: boolean };
@@ -10,6 +11,11 @@ export function EventsScreen(p: { userId: string; email: string; onPick: (e: Eve
   const [events, setEvents] = useState<EventRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [msg, setMsg] = useState('');
+  const [upd, setUpd] = useState<Atualizacao>({ precisa: false, link: null });
+
+  useEffect(() => {
+    checarAtualizacao().then(setUpd);
+  }, []);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -35,6 +41,12 @@ export function EventsScreen(p: { userId: string; email: string; onPick: (e: Eve
         <Logo />
         <Text style={s.h1}>Pra qual evento vão as fotos?</Text>
         <Text style={s.p}>O evento é criado no painel do site. Aqui você só escolhe.</Text>
+        {upd.precisa && (
+          <Pressable onPress={() => upd.link && Linking.openURL(upd.link)} style={[s.card, { borderColor: C.yellow }]}>
+            <Text style={{ color: C.yellow, fontSize: 16, fontWeight: '700' }}>Atualize o app</Text>
+            <Text style={s.p}>Esta versão ficou antiga e pode não enviar as fotos.{upd.link ? ' Toque para baixar a nova.' : ' Peça o APK novo ao Flagra Run.'}</Text>
+          </Pressable>
+        )}
       </View>
       <FlatList
         data={events}

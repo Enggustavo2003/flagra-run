@@ -1,7 +1,7 @@
 import { requireOptionalNativeModule, type EventSubscription } from 'expo';
 
 export type FtpFileEvent = { path: string; name: string; size: number };
-export type FtpStatusEvent = { kind: 'connected' | 'disconnected' | 'auth_failed' | 'error'; message: string };
+export type FtpStatusEvent = { kind: 'connected' | 'disconnected' | 'auth_failed' | 'ignored' | 'error'; message: string };
 
 type Native = {
   start(port: number, user: string, pass: string): Promise<string>;

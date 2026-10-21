@@ -3,7 +3,8 @@ import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { Alert, Image, Pressable, ScrollView, Text, View } from 'react-native';
 import { ftpAddresses, ftpAvailable, onFtpFile, onFtpStatus, startFtp, stopFtp } from '../modules/flagra-ftp/src';
-import { C, FTP_PORT, FTP_USER, previewUrl } from './config';
+import { C, FTP_PORT, FTP_USER } from './config';
+import type { Alvo } from './destinos';
 import type { EventRow } from './EventsScreen';
 import { queue, type Item, type UploadSize } from './queue';
 import { Btn, Card, Label, Logo, Stat, s } from './ui';
@@ -20,6 +21,8 @@ export function CaptureScreen(p: { event: EventRow; onBack: () => void }) {
   const [lastIp, setLastIp] = useState('');
   const [ips, setIps] = useState<string[]>([]);
   const [warn, setWarn] = useState('');
+  const alvo: Alvo = useMemo(() => ({ destino: 'flagrarun', id: p.event.id, nome: p.event.name }), [p.event.id, p.event.name]);
+  const [ignored, setIgnored] = useState(0);
   const sizeRef = useRef(size);
   sizeRef.current = size;
   const inboxRef = useRef('');
@@ -40,13 +43,15 @@ export function CaptureScreen(p: { event: EventRow; onBack: () => void }) {
 
   // cada foto que a câmera manda entra na fila com o tamanho escolhido naquela hora
   useEffect(() => {
-    const a = onFtpFile((f) => queue.add(p.event.id, f.path, f.name, f.size, sizeRef.current));
+    const a = onFtpFile((f) => queue.add(alvo, f.path, f.name, f.size, sizeRef.current));
     const b = onFtpStatus((e) => {
       if (e.kind === 'connected') {
         setCamera('conectada');
         setLastIp(e.message);
       } else if (e.kind === 'disconnected') {
         setCamera('aguardando');
+      } else if (e.kind === 'ignored') {
+        setIgnored((n) => n + 1);
       } else if (e.kind === 'auth_failed') {
         setWarn('A câmera tentou entrar com usuário ou senha errados.');
       }
@@ -56,7 +61,7 @@ export function CaptureScreen(p: { event: EventRow; onBack: () => void }) {
       a?.remove();
       b?.remove();
     };
-  }, [p.event.id]);
+  }, [alvo]);
 
   // desliga ao sair da tela
   useEffect(() => () => {
@@ -82,7 +87,7 @@ export function CaptureScreen(p: { event: EventRow; onBack: () => void }) {
     try {
       const inbox = await startFtp(FTP_PORT, FTP_USER, pass);
       inboxRef.current = inbox;
-      queue.reconcile(inbox, p.event.id, sizeRef.current);
+      queue.reconcile(inbox, alvo, sizeRef.current);
       setIps(ftpAddresses());
       setOn(true);
       await activateKeepAwakeAsync(KEEP);
@@ -93,7 +98,7 @@ export function CaptureScreen(p: { event: EventRow; onBack: () => void }) {
     }
   }
 
-  const mine = useMemo(() => items.filter((i) => i.eventId === p.event.id), [items, p.event.id]);
+  const mine = useMemo(() => items.filter((i) => i.destino === alvo.destino && i.alvoId === alvo.id), [items, alvo]);
   const count = (st: Item['status']) => mine.filter((i) => i.status === st).length;
   const recent = useMemo(() => [...mine].sort((a, b) => b.addedAt - a.addedAt).slice(0, 8), [mine]);
   const errors = count('erro');
@@ -146,6 +151,11 @@ export function CaptureScreen(p: { event: EventRow; onBack: () => void }) {
         )}
         <Btn title={on ? 'Desligar FTP' : 'Ligar FTP'} kind={on ? 'danger' : 'primary'} onPress={toggle} busy={busy} disabled={!ftpAvailable || !pass} />
         {!!warn && <Text style={{ color: C.red }}>{warn}</Text>}
+        {ignored > 0 && (
+          <Text style={{ color: C.yellow }}>
+            {ignored} arquivo(s) RAW ou vídeo ignorado(s). Na câmera, mande só JPEG pelo FTP.
+          </Text>
+        )}
       </Card>
 
       {/* números */}
@@ -164,7 +174,7 @@ export function CaptureScreen(p: { event: EventRow; onBack: () => void }) {
         {recent.map((i) => (
           <View key={i.id} style={[s.row, { paddingVertical: 4 }]}>
             <Image
-              source={{ uri: i.previewPath ? previewUrl(i.previewPath) : i.path.startsWith('file://') ? i.path : `file://${i.path}` }}
+              source={{ uri: i.previewUrl ? i.previewUrl : i.path.startsWith('file://') ? i.path : `file://${i.path}` }}
               style={{ width: 46, height: 46, borderRadius: 8, backgroundColor: C.card2 }}
             />
             <View style={{ flex: 1 }}>

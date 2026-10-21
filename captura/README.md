@@ -11,7 +11,7 @@ App Android do fotógrafo: a câmera manda a foto pelo Wi-Fi (FTP), o app sobe p
 2. O app guarda a foto e coloca na fila com o tamanho escolhido.
 3. Rápido: reduz para 3000 px no maior lado. Original: manda o arquivo cheio.
 4. Sobe para o Storage do Supabase (pasta `originals`, a mesma do site).
-5. Chama `/api/fotos/processar` do site, que gera a prévia com marca d'água, indexa a selfie e põe à venda.
+5. Chama `/api/captura/v1/fotos` do site, que gera a prévia com marca d'água, indexa a selfie e põe à venda.
 6. Sem internet? A foto espera na fila e sobe quando o sinal volta.
 
 ## Colocar para rodar (uma vez)
@@ -55,6 +55,26 @@ Nunca coloque a `service_role` aqui.
 4. Deixe o app aberto. A tela não apaga enquanto o FTP estiver ligado.
 
 Dica Canon (R6 / R6 II / R5): Menu de rede > Transferência FTP > Config. do servidor. Marque "Transf. automática". Sony e Nikon têm opção parecida em "Transferência FTP".
+
+## Destinos (preparado para vender o app separado)
+
+Para onde a foto vai é uma peça trocável em `src/destinos/`. Hoje só existe `flagrarun.ts`.
+Um destino novo (Google Drive, pasta local, FTP/SFTP de saída, outra plataforma com API) é:
+
+1. um arquivo em `src/destinos/` que implementa `Destino.enviar()` (ver `tipos.ts`);
+2. uma linha em `src/destinos/index.ts`;
+3. a tela de escolha do destino e do "alvo" (no Flagra Run, o evento).
+
+FTP, fila, Rápido/Original e as telas de captura não mudam.
+
+## Compatibilidade
+
+- **API versionada:** o app só chama `/api/captura/v1/...`. Mudou o site por dentro? A v1 continua igual. Mudança que quebra = criar `v2` e manter a `v1` até os APKs antigos saírem de uso.
+- **APK antigo:** o app consulta `/api/captura/v1/info` ao abrir. Para obrigar atualização, coloque na Vercel `CAPTURE_MIN_VERSION` (ex.: `1.1.0`) e `CAPTURE_DOWNLOAD_URL` (link do APK novo). A versão do app fica em `src/config.ts` (`APP_VERSION`): suba a cada APK novo.
+- **Fila antiga:** a fila gravada pela versão anterior é convertida sozinha ao abrir o app.
+- **Formatos:** só JPEG vai à venda. RAW (CR3, NEF, ARW...), HEIF e vídeo que a câmera mandar são apagados na hora e o app avisa. Configure a câmera para mandar JPEG pelo FTP.
+- **Várias câmeras:** testado com 3 câmeras enviando ao mesmo tempo. Cada foto ganha um nome único no celular, sem sobrescrever.
+- **Rápido tira os dados EXIF** (horário, câmera). Original mantém. Se um dia precisar do horário da foto (ex.: casar com o tempo do chip), mandar o horário junto no envio.
 
 ## Desenvolvimento
 

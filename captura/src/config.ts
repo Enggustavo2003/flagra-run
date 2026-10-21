@@ -3,6 +3,9 @@ export const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL ?? '';
 export const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? '';
 export const SITE_URL = (process.env.EXPO_PUBLIC_SITE_URL ?? 'https://flagrarun.com.br').replace(/\/$/, '');
 
+// Mandada ao site em cada envio; o site usa para avisar quando um APK antigo precisar de atualização
+export const APP_VERSION = '1.0.0';
+
 export const configOk = !!SUPABASE_URL && !!SUPABASE_ANON_KEY;
 
 export const FTP_PORT = 2121;

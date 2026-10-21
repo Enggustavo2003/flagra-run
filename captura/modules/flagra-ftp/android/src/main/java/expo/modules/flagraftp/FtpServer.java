@@ -288,9 +288,15 @@ public final class FtpServer {
         File f = st.renameFrom == null ? null : st.received.remove(st.renameFrom);
         st.renameFrom = null;
         if (f != null) {
-          st.received.put(to, f);
-          // câmeras que sobem "IMG.TMP" e depois renomeiam: avisa só agora, com o nome final
-          if (isPhoto(to) && !isPhoto(f.getName())) notifyFile(f, baseName(to));
+          // câmeras que sobem "IMG.TMP" e depois renomeiam: renomeia o arquivo e avisa só agora, com o nome final
+          if (isPhoto(to) && !isPhoto(f.getName())) {
+            File renamed = new File(inbox, System.currentTimeMillis() + "_" + safe(baseName(to)));
+            if (f.renameTo(renamed)) f = renamed;
+            st.received.put(to, f);
+            notifyFile(f, baseName(to));
+          } else {
+            st.received.put(to, f);
+          }
         }
         reply(out, "250 Renomeado");
         return true;
@@ -342,7 +348,14 @@ public final class FtpServer {
     if (!part.renameTo(target)) { reply(out, "451 Falha ao gravar"); return; }
     st.received.put(virtual, target);
     reply(out, "226 Recebido");
-    if (isPhoto(name)) notifyFile(target, name);
+    if (isPhoto(name)) {
+      notifyFile(target, name);
+    } else if (isUnsupported(name)) {
+      // RAW e vídeo não vão à venda: apaga na hora para não lotar a memória do celular
+      target.delete();
+      st.received.remove(virtual);
+      listener.onStatus("ignored", name);
+    }
   }
 
   private void notifyFile(File f, String name) {
@@ -430,6 +443,16 @@ public final class FtpServer {
   static String safe(String name) {
     String s = name.replaceAll("[^A-Za-z0-9._-]", "_");
     return s.length() > 120 ? s.substring(s.length() - 120) : s;
+  }
+
+  /** RAW, HEIF e vídeo: a câmera manda, mas não vendemos. Arquivo temporário (.TMP) fica, pode virar JPG no RNTO. */
+  static boolean isUnsupported(String name) {
+    String n = name.toLowerCase(Locale.ROOT);
+    for (String ext : new String[] {".cr2", ".cr3", ".crw", ".nef", ".nrw", ".arw", ".srf", ".sr2", ".raf", ".orf", ".rw2",
+        ".pef", ".dng", ".3fr", ".iiq", ".hif", ".heif", ".heic", ".mp4", ".mov", ".avi", ".mts", ".m4v", ".wav", ".xml", ".xmp"}) {
+      if (n.endsWith(ext)) return true;
+    }
+    return false;
   }
 
   static boolean isPhoto(String name) {
