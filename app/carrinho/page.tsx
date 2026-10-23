@@ -157,7 +157,7 @@ export default function Carrinho() {
             }}
           />
           <span className="muted" style={{ fontSize: 12 }}>
-            O PagBank exige o CPF para gerar o Pix.
+            O CPF é necessário para gerar o Pix.
           </span>
         </div>
         <label className="optin">

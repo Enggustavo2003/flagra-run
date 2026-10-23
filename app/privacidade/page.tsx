@@ -3,7 +3,7 @@ import Link from "next/link";
 export const metadata = { title: "Privacidade" };
 
 /** Preencha quando a empresa estiver aberta. Enquanto estiver vazio, a linha não aparece no site. */
-const CONTROLADORA = ""; // ex.: "[Razão social] LTDA, CNPJ 00.000.000/0001-00, Belo Horizonte/MG"
+const CONTROLADORA = ""; // ex.: "WOD Fotos Ltda, CNPJ 00.000.000/0001-00, Belo Horizonte/MG"
 const GUARDA_DIAS = 90;
 
 const S = {
@@ -37,7 +37,7 @@ export default function Privacidade() {
       <h2 style={S.h2}>2. Que dados guardamos e para quê</h2>
       <ul style={S.ul}>
         <li><b>Quem compra:</b> nome, e-mail e WhatsApp, para liberar as fotos, registrar o pedido e falar com você sobre
-          ele (base legal: execução do contrato). O CPF é enviado só ao PagBank, que exige o dado para gerar o Pix. O
+          ele (base legal: execução do contrato). O CPF é enviado só ao Asaas, que exige o dado para gerar o Pix. O
           WOD Fotos não guarda o CPF nem dados do pagamento.</li>
         <li><b>Novidades e promoções:</b> só se você marcar a caixa de autorização no carrinho (consentimento). Para
           sair, é só responder a mensagem ou falar com a gente.</li>
@@ -90,7 +90,7 @@ export default function Privacidade() {
       <h2 style={S.h2}>5. Com quem dividimos os dados</h2>
       <p style={S.p}>Só com quem precisa para o site funcionar, e cada um só recebe o necessário para a sua parte:</p>
       <ul style={S.ul}>
-        <li><b>PagBank:</b> processa o Pix.</li>
+        <li><b>Asaas:</b> processa o Pix.</li>
         <li><b>Supabase:</b> banco de dados e armazenamento das fotos.</li>
         <li><b>Vercel:</b> hospedagem do site.</li>
         <li><b>Amazon Web Services (Rekognition):</b> busca por rosto, em servidores em São Paulo.</li>

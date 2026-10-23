@@ -1,31 +1,32 @@
 import crypto from "node:crypto";
-import QRCode from "qrcode";
 import { supabaseAdmin } from "./supabase/admin";
 
 /**
- * Pagamentos via PagBank (API Orders, Pix).
- * Docs: https://developer.pagbank.com.br/reference/criar-pedido-com-qr-code-pix-v2
+ * Pagamentos via Asaas (cobrança Pix).
+ * Docs: https://docs.asaas.com/docs/cobrancas-via-pix
+ * Requer uma chave Pix cadastrada na conta Asaas (senão o QR Code é temporário).
  */
 
 export const paymentsFake = () => process.env.PAYMENTS_FAKE === "1";
 
 function apiBase() {
-  return process.env.PAGBANK_ENV === "production"
-    ? "https://api.pagseguro.com"
-    : "https://sandbox.api.pagseguro.com";
+  return process.env.ASAAS_ENV === "production"
+    ? "https://api.asaas.com/v3"
+    : "https://api-sandbox.asaas.com/v3";
 }
 
-function token() {
-  const t = process.env.PAGBANK_TOKEN;
-  if (!t) throw new Error("PAGBANK_TOKEN não configurado");
-  return t;
+function apiKey() {
+  const k = process.env.ASAAS_API_KEY;
+  if (!k) throw new Error("ASAAS_API_KEY não configurada");
+  return k;
 }
 
-async function pagbank(path: string, init?: RequestInit) {
+async function asaas(path: string, init?: RequestInit) {
   const res = await fetch(`${apiBase()}${path}`, {
     ...init,
     headers: {
-      Authorization: `Bearer ${token()}`,
+      access_token: apiKey(),
+      "User-Agent": "WODFotos",
       Accept: "application/json",
       "Content-Type": "application/json",
       ...(init?.headers ?? {}),
@@ -34,7 +35,7 @@ async function pagbank(path: string, init?: RequestInit) {
   });
   const body = await res.json().catch(() => ({}));
   if (!res.ok) {
-    throw new Error(`PagBank ${res.status}: ${JSON.stringify(body?.error_messages ?? body).slice(0, 500)}`);
+    throw new Error(`Asaas ${res.status}: ${JSON.stringify(body?.errors ?? body).slice(0, 500)}`);
   }
   return body;
 }
@@ -52,6 +53,12 @@ export function cleanCpf(input: string) {
   return check(9) === Number(d[9]) && check(10) === Number(d[10]) ? d : null;
 }
 
+/** Data de amanhã no horário de Brasília (AAAA-MM-DD): o Pix vale até o fim desse dia. */
+function dueDate() {
+  const d = new Date(Date.now() - 3 * 60 * 60 * 1000 + 24 * 60 * 60 * 1000);
+  return d.toISOString().slice(0, 10);
+}
+
 export async function createPixPayment(o: {
   orderId: string;
   totalCents: number;
@@ -61,49 +68,37 @@ export async function createPixPayment(o: {
   phone: string;
   photoCount: number;
 }) {
-  const site = process.env.NEXT_PUBLIC_SITE_URL ?? "";
-  // Pix vale 24 horas. Formato aceito: 2026-08-06T20:14:00Z
-  const expires = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().replace(/\.\d{3}Z$/, "Z");
-
-  const order = await pagbank("/orders", {
+  // O Asaas cobra de um "cliente". notificationDisabled evita e-mail/SMS do Asaas para o comprador.
+  const customer = await asaas("/customers", {
     method: "POST",
-    headers: { "x-idempotency-key": o.orderId },
     body: JSON.stringify({
-      reference_id: o.orderId,
-      customer: {
-        name: o.name,
-        email: o.email,
-        tax_id: o.cpf,
-        phones: [{ country: "55", area: o.phone.slice(0, 2), number: o.phone.slice(2), type: "MOBILE" }],
-      },
-      items: [
-        {
-          reference_id: "fotos",
-          name: `WOD Fotos (${o.photoCount})`,
-          quantity: 1,
-          unit_amount: o.totalCents,
-        },
-      ],
-      charges: [
-        {
-          reference_id: o.orderId,
-          description: `WOD Fotos · ${o.photoCount} foto(s)`,
-          amount: { value: o.totalCents, currency: "BRL" },
-          payment_method: { type: "PIX", pix: { expiration_date: expires } },
-        },
-      ],
-      // o PagBank só aceita URL https pública
-      ...(site.startsWith("https://") ? { notification_urls: [`${site}/api/webhooks/pagbank`] } : {}),
+      name: o.name,
+      cpfCnpj: o.cpf,
+      email: o.email,
+      mobilePhone: o.phone,
+      externalReference: o.orderId,
+      notificationDisabled: true,
     }),
   });
 
-  const charge = order.charges?.[0];
-  const text: string | null = charge?.qr_code?.text ?? order.qr_codes?.[0]?.text ?? null;
-  const qrBase64 = text
-    ? (await QRCode.toDataURL(text, { margin: 1, width: 480 })).replace(/^data:image\/png;base64,/, "")
-    : null;
+  const payment = await asaas("/payments", {
+    method: "POST",
+    body: JSON.stringify({
+      customer: customer.id,
+      billingType: "PIX",
+      value: Number((o.totalCents / 100).toFixed(2)),
+      dueDate: dueDate(),
+      description: `WOD Fotos · ${o.photoCount} foto(s)`,
+      externalReference: o.orderId,
+    }),
+  });
 
-  return { gatewayOrderId: String(order.id), qrCode: text, qrBase64 };
+  const qr = await asaas(`/payments/${encodeURIComponent(payment.id)}/pixQrCode`);
+  return {
+    gatewayOrderId: String(payment.id),
+    qrCode: (qr.payload as string) ?? null,
+    qrBase64: (qr.encodedImage as string) ?? null,
+  };
 }
 
 export async function markOrderPaid(orderId: string) {
@@ -114,7 +109,7 @@ export async function markOrderPaid(orderId: string) {
     .eq("status", "pending");
 }
 
-/** Consulta o pedido no PagBank e atualiza o nosso. Devolve o status atual. */
+/** Consulta a cobrança no Asaas e atualiza o nosso pedido. Devolve o status atual. */
 export async function syncOrder(orderId: string): Promise<string> {
   const db = supabaseAdmin();
   const { data: order } = await db
@@ -125,29 +120,26 @@ export async function syncOrder(orderId: string): Promise<string> {
   if (!order) return "missing";
   if (order.status !== "pending" || !order.gateway_order_id) return order.status;
 
-  const remote = await pagbank(`/orders/${encodeURIComponent(order.gateway_order_id)}`);
-  if (remote.reference_id && remote.reference_id !== orderId) return "pending";
+  const remote = await asaas(`/payments/${encodeURIComponent(order.gateway_order_id)}`);
+  if (remote.externalReference && remote.externalReference !== orderId) return "pending";
 
-  const charges: any[] = remote.charges ?? [];
-  if (charges.some((c) => c.status === "PAID")) {
+  if (["RECEIVED", "CONFIRMED", "RECEIVED_IN_CASH"].includes(remote.status)) {
     await markOrderPaid(orderId);
     return "paid";
   }
-  if (charges.length && charges.every((c) => c.status === "CANCELED" || c.status === "DECLINED")) {
+  if (remote.status === "DELETED") {
     await db.from("orders").update({ status: "cancelled" }).eq("id", orderId).eq("status", "pending");
     return "cancelled";
   }
   return "pending";
 }
 
-/** Confere a assinatura do webhook: sha256("{token}-{corpo}") em hex no header x-authenticity-token. */
-export function validPagbankSignature(headers: Headers, rawBody: string) {
-  const received = headers.get("x-authenticity-token") ?? "";
-  if (!received) return false;
-  const expected = crypto.createHash("sha256").update(`${token()}-${rawBody}`, "utf8").digest("hex");
-  try {
-    return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(received.toLowerCase()));
-  } catch {
-    return false;
-  }
+/** Confere o token do webhook: o Asaas manda o authToken que você cadastrou no header asaas-access-token. */
+export function validAsaasToken(headers: Headers) {
+  const expected = process.env.ASAAS_WEBHOOK_TOKEN ?? "";
+  const received = headers.get("asaas-access-token") ?? "";
+  if (!expected || !received) return false;
+  const a = crypto.createHash("sha256").update(expected).digest();
+  const b = crypto.createHash("sha256").update(received).digest();
+  return crypto.timingSafeEqual(a, b);
 }

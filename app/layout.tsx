@@ -54,7 +54,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <div className="wrap">
               <span>© {new Date().getFullYear()} WOD Fotos · Fotos de corridas e eventos esportivos</span>
               <span>
-                <Link href="/termos">Termos de uso</Link> · <Link href="/privacidade">Privacidade</Link> · <Link href="/cookies">Cookies</Link> ·<Link href="/remover-rosto">Remover minhas fotos</Link> · Pix via PagBank
+                <Link href="/termos">Termos de uso</Link> · <Link href="/privacidade">Privacidade</Link> · <Link href="/cookies">Cookies</Link> ·<Link href="/remover-rosto">Remover minhas fotos</Link> · Pix via Asaas
               </span>
             </div>
           </footer>

@@ -3,7 +3,7 @@ import Link from "next/link";
 export const metadata = { title: "Termos de uso" };
 
 /** Preencha quando a empresa estiver aberta. Enquanto estiver vazio, a linha não aparece no site. */
-const OPERADORA = ""; // ex.: "[Razão social] LTDA, CNPJ 00.000.000/0001-00, Belo Horizonte/MG"
+const OPERADORA = ""; // ex.: "WOD Fotos Ltda, CNPJ 00.000.000/0001-00, Belo Horizonte/MG"
 const REEMBOLSO_DIAS = 7;
 const GUARDA_DIAS = 90;
 
@@ -61,7 +61,7 @@ export default function Termos() {
         <li><b>O que não pode:</b> revender, usar em propaganda, em produto à venda ou em material comercial sem
           autorização do fotógrafo. A foto vem como o fotógrafo a entregou, sem tratamento extra.</li>
         <li><b>Pagamento:</b> por Pix. O preço aparece antes de pagar, e o desconto por quantidade, quando houver, é
-          calculado no carrinho. O CPF é exigido pelo PagBank para gerar o Pix.</li>
+          calculado no carrinho. O CPF é exigido pelo Asaas para gerar o Pix.</li>
         <li><b>Entrega:</b> assim que o Pix é confirmado, as fotos ficam na página do pedido, com links de download
           renovados a cada acesso. Guarde o link da página. Se perder, fale com a gente pelo WhatsApp informado.</li>
         <li><b>Prazo de guarda:</b> mantemos as fotos compradas disponíveis por pelo menos {GUARDA_DIAS} dias. O
@@ -104,7 +104,7 @@ export default function Termos() {
           Sem mensalidade, sem taxa de upload, com a busca por selfie incluída. Mudanças futuras de taxa valem só para
           vendas novas e são avisadas antes.</li>
         <li><b>Repasse:</b> o valor das suas vendas, já descontada a comissão, é pago por Pix, com saldo e histórico
-          visíveis no painel. Taxas de pagamento do PagBank e tributos sobre o seu ganho são tratados conforme a lei;
+          visíveis no painel. Taxas de pagamento do Asaas e tributos sobre o seu ganho são tratados conforme a lei;
           quem declara e recolhe os seus impostos é você.</li>
         <li><b>Retirada pelo site:</b> o WOD Fotos pode tirar do ar, sem aviso prévio, fotos que violem estes termos ou
           direitos de terceiros, e suspender contas reincidentes.</li>
@@ -141,9 +141,9 @@ export default function Termos() {
 
       <h2 style={S.h2}>11. Pagamentos</h2>
       <p style={S.p}>
-        Os pagamentos são processados pelo PagBank, instituição de pagamento autorizada pelo Banco Central. O WOD Fotos
+        Os pagamentos são processados pelo Asaas, instituição de pagamento autorizada pelo Banco Central. O WOD Fotos
         é a plataforma e não faz o papel de banco nem guarda o seu CPF ou dados de pagamento. O relacionamento
-        financeiro com o PagBank segue as regras dele.
+        financeiro com o Asaas segue as regras dele.
       </p>
 
       <h2 style={S.h2}>12. Comunicações</h2>
@@ -155,7 +155,7 @@ export default function Termos() {
       <h2 style={S.h2}>13. Disponibilidade e limites de responsabilidade</h2>
       <p style={S.p}>
         O site é oferecido como está e pode ficar fora do ar por manutenção ou falha de serviços parceiros
-        (hospedagem, banco de dados, PagBank, reconhecimento facial). Nesses casos, nenhum pagamento é perdido: o pedido
+        (hospedagem, banco de dados, Asaas, reconhecimento facial). Nesses casos, nenhum pagamento é perdido: o pedido
         continua registrado e as fotos ficam disponíveis assim que o site volta. O WOD Fotos não responde pelo conteúdo
         das fotos, nem por danos causados entre usuários, por fatos de terceiros, caso fortuito ou força maior, sem
         prejuízo do que o Código de Defesa do Consumidor garante a quem compra.

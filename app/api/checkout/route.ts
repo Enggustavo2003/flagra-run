@@ -23,7 +23,7 @@ export async function POST(req: Request) {
   if (!phone) {
     return NextResponse.json({ error: "Digite um WhatsApp válido, com DDD." }, { status: 400 });
   }
-  // O PagBank exige o CPF de quem paga. Não guardamos no nosso banco.
+  // O Asaas exige o CPF de quem paga. Não guardamos no nosso banco.
   const cpf = cleanCpf(typeof body?.cpf === "string" ? body.cpf : "");
   if (!paymentsFake() && !cpf) {
     return NextResponse.json({ error: "Digite um CPF válido. Ele é exigido para gerar o Pix." }, { status: 400 });
@@ -110,7 +110,7 @@ export async function POST(req: Request) {
       .eq("id", order.id);
     return NextResponse.json({ url });
   } catch (err) {
-    console.error("PagBank:", err);
+    console.error("Asaas:", err);
     await db.from("orders").update({ status: "cancelled" }).eq("id", order.id);
     return NextResponse.json(
       { error: "Não foi possível gerar o Pix agora. Tente de novo em alguns minutos." },
