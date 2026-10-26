@@ -157,6 +157,8 @@ alter table public.face_removals enable row level security;
 alter table public.photographers add column if not exists fee_pct numeric(5,2) not null default 12;
 alter table public.photographers add column if not exists founder boolean not null default false;
 alter table public.order_items add column if not exists fee_pct numeric(5,2);
+-- Taxa do Pix (Asaas) descontada do repasse: a parte de cada item na taxa do pedido, em centavos.
+alter table public.order_items add column if not exists pix_fee_cents int not null default 0;
 
 create or replace function public.photographer_plan() returns trigger
 language plpgsql security definer set search_path = public as $$

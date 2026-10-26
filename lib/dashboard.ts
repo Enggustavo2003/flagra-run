@@ -1,3 +1,4 @@
+import { pixFeeCents } from "./pricing";
 import { supabaseAdmin } from "./supabase/admin";
 
 const TZ = "America/Sao_Paulo";
@@ -20,13 +21,13 @@ export async function getDashboard(period: string) {
   const now = Date.now();
   const from = days ? now - days * 864e5 : 0;
   const prevFrom = days ? now - 2 * days * 864e5 : 0;
-  const pixPct = Number(process.env.PIX_FEE_PCT ?? 0.99);
+  const pixEach = pixFeeCents(); // custo do Pix por pedido, em centavos
 
   const [ordersRes, itemsRes, pgsRes, payoutsRes, alertsRes, eventsRes, photosRes] = await Promise.all([
     db.from("orders").select("id, status, total_cents, created_at, paid_at, buyer_phone, buyer_email, marketing_optin").limit(50000),
     db
       .from("order_items")
-      .select("order_id, price_cents, fee_pct, photographer_id, event_id, orders!inner(status, paid_at), events(name, slug)")
+      .select("order_id, price_cents, fee_pct, pix_fee_cents, photographer_id, event_id, orders!inner(status, paid_at), events(name, slug)")
       .eq("orders.status", "paid")
       .limit(100000),
     db.from("photographers").select("id, name, email, founder, fee_pct, whatsapp, created_at"),
@@ -59,7 +60,9 @@ export async function getDashboard(period: string) {
   const gmvPrev = sum(paidPrev.map((o) => o.total_cents));
   const commission = Math.round(sum(itemsP.map((i) => (i.price_cents * Number(i.fee_pct ?? 12)) / 100)));
   const commissionPrev = Math.round(sum(itemsPrev.map((i) => (i.price_cents * Number(i.fee_pct ?? 12)) / 100)));
-  const pixFee = Math.round((gmv * pixPct) / 100);
+  // Custo real do Pix (por pedido) e quanto dele foi descontado dos fotógrafos
+  const pixFee = paidP.length * pixEach;
+  const pixCharged = sum(itemsP.map((i) => Number(i.pix_fee_cents ?? 0)));
   const created = orders.filter((o) => inP(t(o.created_at)));
   const createdPaid = created.filter((o) => o.status === "paid").length;
   const lost = created.filter((o) => o.status !== "paid");
@@ -109,7 +112,9 @@ export async function getDashboard(period: string) {
     .map((p) => {
       const mine = items.filter((i) => i.photographer_id === p.id);
       const sold = sum(mine.map((i) => i.price_cents));
-      const owed = Math.round(sum(mine.map((i) => (i.price_cents * (100 - Number(i.fee_pct ?? 12))) / 100)));
+      const owed = Math.round(
+        sum(mine.map((i) => (i.price_cents * (100 - Number(i.fee_pct ?? 12))) / 100 - Number(i.pix_fee_cents ?? 0)))
+      );
       const paidOut = sum(payouts.filter((x) => x.photographer_id === p.id).map((x) => x.amount_cents));
       const soldP = sum(itemsP.filter((i) => i.photographer_id === p.id).map((i) => i.price_cents));
       return { id: p.id, name: p.name || p.email, email: p.email, whatsapp: p.whatsapp, founder: p.founder,
@@ -130,11 +135,11 @@ export async function getDashboard(period: string) {
 
   return {
     days,
-    pixPct,
+    pixEach,
     sales: {
       gmv, gmvDelta: delta(gmv, gmvPrev),
       commission, commissionDelta: delta(commission, commissionPrev),
-      pixFee, net: commission - pixFee,
+      pixFee, pixCharged, net: commission + pixCharged - pixFee,
       orders: paidP.length, ordersDelta: delta(paidP.length, paidPrev.length),
       photos: itemsP.length,
       ticket: paidP.length ? Math.round(gmv / paidP.length) : 0,
