@@ -53,6 +53,7 @@ Faça na ordem. Tempo total: uns 40 minutos.
 | `PHOTOGRAPHER_EMAILS` | seu e-mail (só quem estiver aqui entra no painel) |
 | `ADMIN_EMAILS` | seu e-mail (vê os pedidos e o WhatsApp dos clientes) |
 | `PLATFORM_FEE_PCT` | `12` (só reserva; a comissão real fica no banco) |
+| `PIX_FEE_CENTS` | `199` (taxa do Pix do Asaas por pedido, em centavos; descontada do repasse dos fotógrafos. Se não existir, vale 199) |
 | `PAYMENTS_FAKE` | `0` |
 
 4. Clique em **Deploy**. Em 2 minutos o site está no ar num endereço `.vercel.app`.
@@ -95,7 +96,7 @@ npm run dev                  # abre em http://localhost:3000
 - **Desconto:** 3 fotos ou mais no mesmo pedido = 20% off (`lib/pricing.ts`).
 - **Pagamento:** o checkout cria o Pix no Asaas. O pedido é aprovado por dois caminhos: o webhook do Asaas (com o token conferido) e a própria página do pedido, que consulta a cada 5 segundos.
 - **Entrega:** a página do pedido gera links assinados de 24h para as originais. O link da página (com o código `?t=`) é o comprovante do cliente.
-- **Repasse:** cada item vendido guarda o fotógrafo e o valor já com desconto. O painel mostra o repasse descontada a comissão (`PLATFORM_FEE_PCT`). O pagamento ao fotógrafo é feito por você, manualmente, por enquanto.
+- **Repasse:** cada item vendido guarda o fotógrafo e o valor já com desconto. O painel mostra o repasse já descontada a comissão e a taxa do Pix (`PIX_FEE_CENTS`, padrão R$ 1,99 por pedido, dividida entre os itens do pedido proporcional ao valor; cada item guarda a sua parte em `order_items.pix_fee_cents`). O pagamento ao fotógrafo é feito por você, manualmente, por enquanto.
 
 ## Próximos passos
 
@@ -144,7 +145,8 @@ Política mínima do usuário IAM (troque `SEU_ID_DA_CONTA`):
 - Quem define isso é o banco, no cadastro (gatilho `photographer_plan` no SQL). O fotógrafo não consegue mudar a própria taxa.
 - Cada venda guarda a comissão daquele fotógrafo (`order_items.fee_pct`), então o repasse fica certo mesmo se a regra mudar depois.
 - Mudar a comissão de alguém, ou dar o status de fundador fora da regra: Supabase > Table Editor > `photographers` > colunas `fee_pct` e `founder`.
-- Preço sugerido por foto: R$ 9,90.
+- Além da comissão, cada pedido paga a taxa do Pix (R$ 1,99 por pedido), descontada do repasse e dividida entre os fotógrafos do pedido.
+- Preço sugerido por foto: R$ 14,90.
 
 **Privacidade**
 - `/privacidade`: política em linguagem simples (rascunho para o advogado revisar).
@@ -168,8 +170,11 @@ Política mínima do usuário IAM (troque `SEU_ID_DA_CONTA`):
 
 - Só para `ADMIN_EMAILS`. Entre em `/entrar` com e-mail e senha (crie a senha no painel, quadro **Senha de acesso**) ou pelo link no e-mail.
 - Períodos 7, 30, 90 dias ou tudo, com comparação com o período anterior.
-- Resultado da plataforma (comissão − taxa do Pix, `PIX_FEE_PCT`, padrão 0,99), vendas, pedidos, ticket médio, fotos por pedido, conversão do Pix e venda que ficou sem pagar.
+- Resultado da plataforma (comissão + taxa do Pix descontada dos fotógrafos − custo do Pix por pedido, `PIX_FEE_CENTS`), vendas, pedidos, ticket médio, fotos por pedido, conversão do Pix e venda que ficou sem pagar.
 - Vendas por dia/mês, horário das vendas e álbuns que mais vendem.
 - Base: clientes, recompra, autorizações, avisos abertos, fotógrafos e fundadores.
 - **Repasses:** saldo de cada fotógrafo (direito dele − já pago). Depois de fazer o Pix, clique em **Registrar repasse** (`photographer_payouts`).
 - Instalação antiga: rode `supabase/migracao-dashboard.sql` antes de subir o código.
+
+**Taxa do Pix no repasse**
+- Rode `supabase/migracao-taxa-pix.sql` no SQL Editor **antes** de subir este código (cria `order_items.pix_fee_cents`). Pedidos antigos ficam com 0.

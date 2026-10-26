@@ -43,7 +43,7 @@ export function AdminView({ d, period }: { d: Dashboard; period: string }) {
           <span className="label">Resultado da plataforma</span>
           <b>{brl(s.net)}</b>
           <small>
-            {brl(s.commission)} de comissão − {brl(s.pixFee)} de Pix ({String(d.pixPct).replace(".", ",")}%) {pct(s.commissionDelta)}
+            {brl(s.commission)} de comissão + {brl(s.pixCharged)} de taxa do Pix descontada dos fotógrafos − {brl(s.pixFee)} de custo do Pix ({brl(d.pixEach)} por pedido) {pct(s.commissionDelta)}
           </small>
         </div>
         <div className="kpi">

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { isUuid } from "@/lib/format";
 import { cleanCpf, createPixPayment, paymentsFake } from "@/lib/payments";
 import { cleanPhone } from "@/lib/phone";
-import { computeTotals, splitTotal } from "@/lib/pricing";
+import { computeTotals, pixFeeCents, splitPixFee, splitTotal } from "@/lib/pricing";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
@@ -72,6 +72,10 @@ export async function POST(req: Request) {
     .in("id", [...new Set(rows.map((p) => p.events.photographer_id as string))]);
   const feeOf = new Map((pgs ?? []).map((p: any) => [p.id, Number(p.fee_pct)]));
 
+  // A taxa do Pix do pedido é dividida entre os itens (e, por isso, entre os fotógrafos), proporcional ao valor.
+  const feePcts = rows.map((p) => feeOf.get(p.events.photographer_id) ?? 12);
+  const pixFees = splitPixFee(shares, feePcts, pixFeeCents());
+
   const { error: iErr } = await db.from("order_items").insert(
     rows.map((p, i) => ({
       order_id: order.id,
@@ -79,7 +83,8 @@ export async function POST(req: Request) {
       event_id: p.event_id,
       photographer_id: p.events.photographer_id,
       price_cents: shares[i],
-      fee_pct: feeOf.get(p.events.photographer_id) ?? 12,
+      fee_pct: feePcts[i],
+      pix_fee_cents: pixFees[i],
     }))
   );
   if (iErr) {

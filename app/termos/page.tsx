@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { brl } from "@/lib/format";
+import { pixFeeCents } from "@/lib/pricing";
 
 export const metadata = { title: "Termos de uso" };
 
@@ -101,11 +103,13 @@ export default function Termos() {
           exponham alguém ao ridículo. Fotos que alguém peça para tirar do ar devem sair na hora.</li>
         <li><b>Comissão:</b> o WOD Fotos retém um percentual do valor bruto de cada venda, mostrado no seu painel antes de
           você publicar. Os 30 primeiros fotógrafos (Plano Fundador) ficam com 10% para sempre; os demais, com 12%.
-          Sem mensalidade, sem taxa de upload, com a busca por selfie incluída. Mudanças futuras de taxa valem só para
-          vendas novas e são avisadas antes.</li>
-        <li><b>Repasse:</b> o valor das suas vendas, já descontada a comissão, é pago por Pix, com saldo e histórico
-          visíveis no painel. Taxas de pagamento do Asaas e tributos sobre o seu ganho são tratados conforme a lei;
-          quem declara e recolhe os seus impostos é você.</li>
+          Sem mensalidade, sem taxa de upload, com a busca por selfie incluída. Além da comissão, cada pedido paga a taxa
+          do Pix do Asaas ({brl(pixFeeCents())} por pedido), descontada do repasse. Se o pedido tiver fotos de mais de um
+          fotógrafo, a taxa é dividida entre eles na proporção do valor de cada um, e nunca deixa o repasse negativo.
+          Mudanças futuras de taxa valem só para vendas novas e são avisadas antes.</li>
+        <li><b>Repasse:</b> o valor das suas vendas, já descontadas a comissão e a taxa do Pix, é pago por Pix, com
+          saldo e histórico visíveis no painel. Tributos sobre o seu ganho são tratados conforme a lei; quem declara e
+          recolhe os seus impostos é você.</li>
         <li><b>Retirada pelo site:</b> o WOD Fotos pode tirar do ar, sem aviso prévio, fotos que violem estes termos ou
           direitos de terceiros, e suspender contas reincidentes.</li>
         <li><b>Fora da plataforma:</b> não use o WOD Fotos para levar compradores a vender por fora ou para divulgar
