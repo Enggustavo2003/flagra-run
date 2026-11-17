@@ -31,7 +31,7 @@ export function NewEventForm() {
         </div>
         <div className="field">
           <label className="label" htmlFor="price">
-            Preço (R$)
+            Preço por foto (R$, mínimo 5)
           </label>
           <input id="price" name="price" className="mono" inputMode="decimal" defaultValue="9,90" required />
         </div>

@@ -51,6 +51,14 @@ export async function POST(req: Request) {
   const t = computeTotals(prices);
   const shares = splitTotal(prices, t.total);
 
+  // O Asaas não gera Pix abaixo de R$ 5,00
+  if (t.total < 500) {
+    return NextResponse.json(
+      { error: "O pedido mínimo é de R$ 5,00. Adicione mais uma foto ao carrinho." },
+      { status: 400 }
+    );
+  }
+
   const { data: order, error: oErr } = await db
     .from("orders")
     .insert({
