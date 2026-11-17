@@ -19,7 +19,7 @@ export async function createEvent(_: FormState, form: FormData): Promise<FormSta
 
   if (name.length < 3) return { error: "Dê um nome ao evento." };
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return { error: "Escolha a data do evento." };
-  if (!(price >= 1 && price <= 1000)) return { error: "Informe um preço entre R$ 1 e R$ 1.000, como 9,90." };
+  if (!(price >= 5 && price <= 1000)) return { error: "Informe um preço entre R$ 5 e R$ 1.000, como 9,90. O mínimo é R$ 5 por foto por causa do Pix." };
   if (!(CATEGORIES as readonly string[]).includes(category)) return { error: "Categoria inválida." };
 
   const base = slugify(`${name}-${date.slice(0, 4)}`) || "evento";
